@@ -1,8 +1,16 @@
 
+Server listens on port 5566, connect to it with an ordinary socket.
+
 Packets are utf-8 encoded json objects formated onto a single line.
 
 Every packet must contain a "method" field
 Every packet can also optionally contain a "data" feild;
+
+You can test by using telnet:
+
+> telnet babylon.vrsites.com
+
+Copy and past the examples below to see how it works
 
 
 Client -> Server Methods:
@@ -12,6 +20,8 @@ Need to do this before anything else, roomId is the room you are starting in,you
 {"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457"}}
 
 Version is the client version, TODO: Reject incompatable clients
+
+Logon will fail if a client is already using that name TODO: Add authentication
 
 Will receive: {"method":"okay"} if everything was okay or a {"method":"error", "data":{"message": "Some error string"}}
 
@@ -23,6 +33,8 @@ When the user position has moved:
 
 {"method":"move", "data": [0,0,0,0,0,0,0] }
 
+Data can be anything you like, it will be passed to observers without validation
+
 When the user wants to send a text message:
 
 {"method":"chat", "data": "The message"}
@@ -33,13 +45,13 @@ When you wish to start receiving events about a room (you are in that room or lo
 
 {"method":"subscribe", "data": { "roomId": "345678354764987457" }}
 
-Will recive: {"method":"okay"} if everything was okay
+Will receive: {"method":"okay"} if everything was okay
 
-When you close a portal or otherwise no longer wish to receive messages from that room
+When you no longer wish to receive messages from that room because none of its portals are visible
 
 {"method":"unsubscribe", "data": { "roomId": "345678354764987457" }}
 
-Will recieve: {"method":"okay"} if everything was okay
+Will receive: {"method":"okay"} if everything was okay
 
 
 Server -> Client Notifications:

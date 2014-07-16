@@ -15,14 +15,24 @@ function Session(server, socket) {
 
     this.subscriptions = [];
 
-
     byline(socket).on('data', this.parseMessage.bind(this));
 
+    this.listener = function(method,data) {
 
-    this.listener = this.send.bind(this);
+        //Dont echo our own events
+        if(data.userId === self.id) {
+            return;
+        }
+        self.send(method,data);
+    }
 
     socket.on('end', function() {
-        self.subscriptions.each(function(room){
+
+        if(self.currentRoom) {
+            self.currentRoom.emit('event', 'user_disconnected', {userId:self.id});
+        }
+
+        self.subscriptions.forEach(function(room){
             room.removeListener('event',self.listener);
         });
     });
@@ -32,7 +42,7 @@ module.exports = Session;
 
 Session.prototype.send = function(method, data) {
     var packet = JSON.stringify({method:method,data:data});
-    this._socket.write(packet);
+    this._socket.write(packet+'\r\n');
     log.debug('S->C: ' + packet);
 };
 
@@ -88,9 +98,11 @@ Session.prototype.logon = function(data) {
     }
 
     //TODO: Auth
-    //TODO: Prevent duplicate sessions
 
-    this.send('okay');
+    if(!this._server.isNameFree(data.userId)) {
+        this.clientError('User name is already in use');
+        return;
+    }
 
     this._authed = true;
     this.id = data.userId;
@@ -98,8 +110,7 @@ Session.prototype.logon = function(data) {
     log.info('User: ' + this.id + ' signed on');
 
     this.currentRoom = this._server.getRoom(data.roomId);
-    this.currentRoom.on('event', this.listener);
-    this.subscriptions.push(this.currentRoom);
+    this.subscribe(data);
 };
 
 Session.prototype.enter_room = function(data) {

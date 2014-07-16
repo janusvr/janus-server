@@ -22,7 +22,17 @@ Server.prototype.getRoom = function(roomId) {
     }
 
     return this._rooms[roomId];
+};
 
+Server.prototype.isNameFree = function(name) {
+
+    var free = true;
+    this._sessions.forEach(function(s) {
+        if(s.id === name) {
+            free = false;
+        }
+    });
+    return free;
 };
 
 Server.prototype.start = function() {
