@@ -7,7 +7,7 @@ Every packet can also optionally contain a "data" feild;
 
 Client -> Server Methods:
 
-Need to do this before anything else, roomId is the room you are starting in
+Need to do this before anything else, roomId is the room you are starting in,you will be subscribed to that rooms events
 
 {"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457"}}
 
@@ -22,6 +22,12 @@ When you pass through a portal:
 When the user position has moved:
 
 {"method":"move", "data": [0,0,0,0,0,0,0] }
+
+When the user wants to send a text message:
+
+{"method":"chat", "data": "The message"}
+
+You can pass anything through the data field and it will be sent to all clients subscribed to the current room.
 
 When you wish to start receiving events about a room (you are in that room or looking through a portal)
 
@@ -42,7 +48,10 @@ When a user moves in any room that you are subscribed too, will recive notificat
 
 {"method":"user_moved","data":{"roomId":"fgdgd","userId":"LL","position":[0,0,0,0,0,0,0]}}
 
+When a user says something in text chat
+
+{"method":"user_chat", "data":{"message":"The message", "userId":"LL"}}
 
 When a user changes room:
 
-{"method":"user_entered", {}}
+{"method":"user_entered", :{"userId":"LL","roomId":"345678354764987457"}}

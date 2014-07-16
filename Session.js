@@ -41,7 +41,7 @@ Session.prototype.clientError = function(message) {
     this.send('error', {message:message});
 };
 
-Session.validMethods = ['logon', 'subscribe', 'unsubscribe', 'enter_room', 'move'];
+Session.validMethods = ['logon', 'subscribe', 'unsubscribe', 'enter_room', 'move', 'chat'];
 
 Session.prototype.parseMessage = function(data){
 
@@ -98,6 +98,8 @@ Session.prototype.logon = function(data) {
     log.info('User: ' + this.id + ' signed on');
 
     this.currentRoom = this._server.getRoom(data.roomId);
+    this.currentRoom.on('event', this.listener);
+    this.subscriptions.push(this.currentRoom);
 };
 
 Session.prototype.enter_room = function(data) {
@@ -120,6 +122,17 @@ Session.prototype.move = function(position) {
     };
 
     this.currentRoom.emit('event', 'user_moved', data);
+};
+
+Session.prototype.chat = function(message) {
+
+    var data = {
+        roomId: this.currentRoom.id,
+        userId: this.id,
+        message: message
+    };
+
+    this.currentRoom.emit('event', 'user_chat', data);
 };
 
 Session.prototype.subscribe = function(data) {
