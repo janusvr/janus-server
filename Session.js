@@ -200,4 +200,5 @@ Session.prototype.portal = function(portal) {
     };
 
     this.currentRoom.emit('event', 'new_portal', data);
+    this.send('okay');
 };
