@@ -53,6 +53,11 @@ When you no longer wish to receive messages from that room because none of its p
 
 Will receive: {"method":"okay"} if everything was okay
 
+When a user creates a new portal:
+
+{"method":"portal", "data":{"url":"http://...", "pos":[1,2,4], "fwd":[0,1,0]}}
+
+Will receive: {"method":"okay"} if everything was okay
 
 Server -> Client Notifications:
 
@@ -66,4 +71,11 @@ When a user says something in text chat
 
 When a user changes room:
 
-{"method":"user_entered", :{"userId":"LL","roomId":"345678354764987457"}}
+{"method":"user_leave", "data":{"userId":"LL","roomId":"oldRoomId"}}
+{"method":"user_enter", "data":{"userId":"LL","roomId":"newRoomId"}}
+
+The followed up with a move user_moved event
+
+When a user creates a portal
+
+{"method":"user_portal", "data":{"userId":"LL","roomId":"345678354764987457","url":"http://...", "pos":[0,0,0], "fwd":[0,1,0]}}

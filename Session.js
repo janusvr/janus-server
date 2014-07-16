@@ -51,7 +51,7 @@ Session.prototype.clientError = function(message) {
     this.send('error', {message:message});
 };
 
-Session.validMethods = ['logon', 'subscribe', 'unsubscribe', 'enter_room', 'move', 'chat'];
+Session.validMethods = ['logon', 'subscribe', 'unsubscribe', 'enter_room', 'move', 'chat', 'portal'];
 
 Session.prototype.parseMessage = function(data){
 
@@ -120,8 +120,13 @@ Session.prototype.enter_room = function(data) {
         return;
     }
 
+    if(this.currentRoom) {
+        this.currentRoom.emit('event', 'user_leave', { userId: this.id, roomId: this.currentRoom.id })
+    }
+
+
     this.currentRoom = this._server.getRoom(data.roomId);
-    this.currentRoom.emit('event', 'user_entered', { userId: this.id, roomId: data.roomId })
+    this.currentRoom.emit('event', 'user_enter', { userId: this.id, roomId: data.roomId })
 };
 
 Session.prototype.move = function(position) {
@@ -179,4 +184,20 @@ Session.prototype.unsubscribe = function(data) {
     }
 
     this.send('okay');
+};
+
+
+Session.prototype.portal = function(portal) {
+
+    //TODO: Persist portals
+
+    var data = {
+        roomId: this.currentRoom.id,
+        userId: this.id,
+        url: portal.url,
+        pos: portal.pos,
+        fwd: portal.fwd
+    };
+
+    this.currentRoom.emit('event', 'new_portal', data);
 };
