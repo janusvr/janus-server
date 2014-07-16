@@ -8,7 +8,7 @@ Every packet can also optionally contain a "data" feild;
 
 You can test by using telnet:
 
-> telnet babylon.vrsites.com
+> telnet babylon.vrsites.com 5566
 
 Copy and past the examples below to see how it works
 
