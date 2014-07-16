@@ -1,0 +1,48 @@
+
+Packets are utf-8 encoded json objects formated onto a single line.
+
+Every packet must contain a "method" field
+Every packet can also optionally contain a "data" feild;
+
+
+Client -> Server Methods:
+
+Need to do this before anything else, roomId is the room you are starting in
+
+{"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457"}}
+
+Version is the client version, TODO: Reject incompatable clients
+
+Will receive: {"method":"okay"} if everything was okay or a {"method":"error", "data":{"message": "Some error string"}}
+
+When you pass through a portal:
+
+{"method":"enter_room", "data": { "roomId": "345678354764987457" }}
+
+When the user position has moved:
+
+{"method":"move", "data": [0,0,0,0,0,0,0] }
+
+When you wish to start receiving events about a room (you are in that room or looking through a portal)
+
+{"method":"subscribe", "data": { "roomId": "345678354764987457" }}
+
+Will recive: {"method":"okay"} if everything was okay
+
+When you close a portal or otherwise no longer wish to receive messages from that room
+
+{"method":"unsubscribe", "data": { "roomId": "345678354764987457" }}
+
+Will recieve: {"method":"okay"} if everything was okay
+
+
+Server -> Client Notifications:
+
+When a user moves in any room that you are subscribed too, will recive notification about your own movement
+
+{"method":"user_moved","data":{"roomId":"fgdgd","userId":"LL","position":[0,0,0,0,0,0,0]}}
+
+
+When a user changes room:
+
+{"method":"user_entered", {}}
