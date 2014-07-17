@@ -9,31 +9,22 @@ function Session(server, socket) {
     this._socket = socket;
     this._authed = false;
     this._server = server;
+    this._rooms = [];
 
     this.id = null;
     this.currentRoom = null;
 
-    this.subscriptions = [];
 
     byline(socket).on('data', this.parseMessage.bind(this));
-
-    this.listener = function(method,data) {
-
-        //Dont echo our own events
-        if(data.userId === self.id) {
-            return;
-        }
-        self.send(method,data);
-    }
 
     socket.on('end', function() {
 
         if(self.currentRoom) {
-            self.currentRoom.emit('event', 'user_disconnected', {userId:self.id});
+            self.currentRoom.emit('user_disconnected', {userId:self.id});
         }
 
-        self.subscriptions.forEach(function(room){
-            room.removeListener('event',self.listener);
+        self._rooms.forEach(function(room){
+            room.removeObserver(self);
         });
     });
 }
@@ -47,7 +38,7 @@ Session.prototype.send = function(method, data) {
 };
 
 Session.prototype.clientError = function(message) {
-    log.error('Client error: ' + message);
+    log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
     this.send('error', {message:message});
 };
 
@@ -121,12 +112,12 @@ Session.prototype.enter_room = function(data) {
     }
 
     if(this.currentRoom) {
-        this.currentRoom.emit('event', 'user_leave', { userId: this.id, roomId: this.currentRoom.id })
+        this.currentRoom.emit('user_leave', { userId: this.id, roomId: this.currentRoom.id })
     }
 
 
     this.currentRoom = this._server.getRoom(data.roomId);
-    this.currentRoom.emit('event', 'user_enter', { userId: this.id, roomId: data.roomId })
+    this.currentRoom.emit('user_enter', { userId: this.id, roomId: data.roomId })
 };
 
 Session.prototype.move = function(position) {
@@ -137,7 +128,7 @@ Session.prototype.move = function(position) {
         position: position
     };
 
-    this.currentRoom.emit('event', 'user_moved', data);
+    this.currentRoom.emit('user_moved', data);
 };
 
 Session.prototype.chat = function(message) {
@@ -148,7 +139,7 @@ Session.prototype.chat = function(message) {
         message: message
     };
 
-    this.currentRoom.emit('event', 'user_chat', data);
+    this.currentRoom.emit('user_chat', data);
 };
 
 Session.prototype.subscribe = function(data) {
@@ -160,9 +151,9 @@ Session.prototype.subscribe = function(data) {
 
     var room = this._server.getRoom(data.roomId);
 
-    if(this.subscriptions.indexOf(room) === -1) {
-        room.on('event', this.listener);
-        this.subscriptions.push(room);
+    if(this._rooms.indexOf(room) === -1) {
+        room.addSession(this);
+        this._rooms.push(room);
     }
 
     this.send('okay');
@@ -177,10 +168,10 @@ Session.prototype.unsubscribe = function(data) {
 
     var room = this._server.getRoom(data.roomId);
 
-    var i = this.subscriptions.indexOf(room);
+    var i = this._rooms.indexOf(room);
     if(i !== -1) {
-        room.removeListener('event', this.listener);
-        room.slice(i,1);
+        room.removeSession(this);
+        this._rooms.slice(i,1);
     }
 
     this.send('okay');
@@ -199,6 +190,6 @@ Session.prototype.portal = function(portal) {
         fwd: portal.fwd
     };
 
-    this.currentRoom.emit('event', 'new_portal', data);
+    this.currentRoom.emit('new_portal', data);
     this.send('okay');
 };
