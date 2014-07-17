@@ -1,6 +1,7 @@
 var args = require('optimist').argv;
 var config = require(args.config || './config.js');
 var net = require('net');
+var tls = require('tls');
 var events = require('events');
 var winston = require('winston');
 
@@ -60,6 +61,21 @@ Server.prototype.start = function() {
         log.info('Server listening');
 
     });
+
+    if(config.ssl) {
+
+        this.ssl = tls.createServer(config.ssl.options, this.onConnect.bind(this))
+        this.ssl.listen(config.ssl.port, function(err){
+
+            if(err) {
+                log.errror('Error listening on port');
+                process.exit(1);
+            }
+
+            log.info('Server listening (SSL)');
+
+        });
+    }
 };
 
 Server.prototype.onConnect = function(socket) {

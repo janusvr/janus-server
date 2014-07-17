@@ -1,0 +1,5 @@
+#!/bin/bash
+openssl genrsa -out server-key.pem 1024
+openssl req -new -key server-key.pem -out server-cert.tmp
+openssl x509 -req -days 365 -in server-cert.tmp -signkey server-key.pem  -out server-cert.pem
+rm server-cert.tmp
