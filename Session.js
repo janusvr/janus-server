@@ -24,7 +24,7 @@ function Session(server, socket) {
         }
 
         self._rooms.forEach(function(room){
-            room.removeObserver(self);
+            room.removeSession(self);
         });
     });
 }

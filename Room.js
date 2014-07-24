@@ -28,7 +28,7 @@ Room.prototype.emit = function(event,data) {
     this._sessions.forEach(function(s) {
 
         //Dont echo events back to originiating session
-        if(data.userId === session.id) {
+        if(data.userId === s.id) {
             return;
         }
 

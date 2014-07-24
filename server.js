@@ -16,6 +16,13 @@ if(args.console) {
 
 global.log = new (winston.Logger)({transports: transports});
 
+process.on('uncaughtException', function(err) {
+    // handle the error safely
+    log.error('UNCAUGHT EXCEPTION:', err, err.stack);
+    process.exit(1); //Dont contnue in undefined state
+});
+
+
 
 var Session = require('./Session');
 var Room = require('./Room');
@@ -81,13 +88,14 @@ Server.prototype.start = function() {
 Server.prototype.onConnect = function(socket) {
 
     var self = this;
-    log.info('Client connected ' + socket.remoteAddress);
+    var addr = socket.remoteAddress;
+    log.info('Client connected ' + addr);
 
     var s = new Session(this, socket);
     this._sessions.push(s);
 
     s._socket.on('end', function() {
-        log.info('Client disconnected: ' + socket.remoteAddress);
+        log.info('Client disconnected: ' + addr);
         self._sessions.slice(self._sessions.indexOf(s),1);
     });
 };
