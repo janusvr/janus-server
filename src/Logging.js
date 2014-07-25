@@ -28,17 +28,21 @@ function callingFile(index, err) {
 if(args.debug) {
 	npmlog.enableColor();
 } else {
-	npmlog.stream = fs.createWriteStream('server.log');
+	npmlog.stream = fs.createWriteStream('server.log', {'flags':'a'});
+	npmlog.stream.write('------------- Restart -----------------');
+}
+
+function ts() {
+	return new Date().toTimeString().substring(0,8);
 }
 
 function log(level) {
 	var msg = Array.prototype.slice.call(arguments,1);
-
-	npmlog.log.apply(npmlog, [level,callingFile(2)].concat(msg));
+	npmlog.log.apply(npmlog, [level, ts()+' '+callingFile(2)].concat(msg));
 }
 
 process.on('uncaughtException', function(ex){
-	npmlog.log('error', callingFile(0,ex), "Uncaught exception %s", ex.message);
+	npmlog.log('error', ts()+' '+callingFile(0,ex), "Uncaught exception %s", ex.message);
 	process.exit(1);
 });
 
