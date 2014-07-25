@@ -17,7 +17,7 @@ function Session(server, socket) {
 
     byline(socket).on('data', this.parseMessage.bind(this));
 
-    socket.on('end', function() {
+    socket.on('close', function() {
 
         if(self.currentRoom) {
             self.currentRoom.emit('user_disconnected', {userId:self.id});
