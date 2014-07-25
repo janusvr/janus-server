@@ -190,6 +190,6 @@ Session.prototype.portal = function(portal) {
         fwd: portal.fwd
     };
 
-    this.currentRoom.emit('new_portal', data);
+    this.currentRoom.emit('user_portal', data);
     this.send('okay');
 };

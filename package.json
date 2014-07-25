@@ -11,7 +11,8 @@
   "dependencies": {
     "byline": "^4.1.1",
     "express": "^4.6.1",
-    "optimist": "^0.6.1",
-    "winston": "^0.7.3"
+    "finished": "^1.2.2",
+    "npmlog": "^0.1.1",
+    "optimist": "^0.6.1"
   }
 }

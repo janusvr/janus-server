@@ -4,8 +4,10 @@ var fs = require('fs');
 module.exports = {
 
     /* Socket port to listen on */
-    port: '5566',
+    port: 5566,
 
+    /* Web UI */
+    webServer: 8080,
 
     ssl: {
         port: 5567,
@@ -15,5 +17,4 @@ module.exports = {
         }
     }
 
-
-}
+};
