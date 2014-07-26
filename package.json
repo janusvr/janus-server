@@ -13,6 +13,7 @@
     "express": "^4.6.1",
     "finished": "^1.2.2",
     "npmlog": "^0.1.1",
-    "optimist": "^0.6.1"
+    "optimist": "^0.6.1",
+    "simplesets": "^1.2.0"
   }
 }

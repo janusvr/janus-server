@@ -37,13 +37,17 @@ function ts() {
 }
 
 function log(level) {
+	if(level==='debug' && !args.debug) {
+		return;
+	}
+
 	var msg = Array.prototype.slice.call(arguments,1);
 	npmlog.log.apply(npmlog, [level, ts()+' '+callingFile(2)].concat(msg));
 }
 
 process.on('uncaughtException', function(ex){
 	npmlog.log('error', ts()+' '+callingFile(0,ex), "Uncaught exception %s", ex.message);
-	process.exit(1);
+	setTimeout(function(){ process.exit(1); },10);
 });
 
 

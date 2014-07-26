@@ -5,6 +5,7 @@ var tls = require('tls');
 var events = require('events');
 var express = require('express');
 var fs = require('fs');
+var sets = require('simplesets');
 
 global.log = require('./src/Logging');
 
@@ -14,7 +15,7 @@ var Room = require('./src/Room');
 
 function Server() {
 
-    this._sessions = [];
+    this._sessions = new sets.Set();
     this._rooms = {};
 }
 
@@ -29,7 +30,7 @@ Server.prototype.getRoom = function(roomId) {
 Server.prototype.isNameFree = function(name) {
 
     var free = true;
-    this._sessions.forEach(function(s) {
+    this._sessions.each(function(s) {
         if(s.id === name) {
             free = false;
         }
@@ -105,11 +106,15 @@ Server.prototype.onConnect = function(socket) {
     log.info('Client connected ' + addr);
 
     var s = new Session(this, socket);
-    this._sessions.push(s);
+    this._sessions.add(s);
 
-    s._socket.on('close', function() {
+    socket.on('close', function() {
         log.info('Client disconnected: ' + addr);
-        self._sessions.slice(self._sessions.indexOf(s),1);
+        self._sessions.remove(s);
+    });
+
+    socket.on('error', function(err){
+        log.error('Socket error: ', err);
     });
 };
 
