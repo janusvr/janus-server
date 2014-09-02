@@ -34,7 +34,7 @@ module.exports = Session;
 Session.prototype.send = function(method, data) {
     var packet = JSON.stringify({method:method,data:data});
     this._socket.write(packet+'\r\n');
-    log.info('S->C: ' + packet);
+    //log.info('S->C: ' + packet);
 };
 
 Session.prototype.clientError = function(message) {
@@ -46,7 +46,7 @@ Session.validMethods = ['logon', 'subscribe', 'unsubscribe', 'enter_room', 'move
 
 Session.prototype.parseMessage = function(data){
 
-    log.info('C->S: ' + data);
+    //log.info('C->S: ' + data);
 
     var payload;
 
