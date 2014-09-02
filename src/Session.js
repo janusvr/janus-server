@@ -115,7 +115,10 @@ Session.prototype.enter_room = function(data) {
         this.currentRoom.emit('user_leave', { userId: this.id, roomId: this.currentRoom.id });
     }
 
+    // publish to old room
+    this.currentRoom.emit('user_enter', { userId: this.id, roomId: data.roomId });
 
+    //publish to new room
     this.currentRoom = this._server.getRoom(data.roomId);
     this.currentRoom.emit('user_enter', { userId: this.id, roomId: data.roomId });
 };
