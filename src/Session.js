@@ -34,7 +34,7 @@ module.exports = Session;
 Session.prototype.send = function(method, data) {
     var packet = JSON.stringify({method:method,data:data});
     this._socket.write(packet+'\r\n');
-    log.debug('S->C: ' + packet);
+    log.info('S->C: ' + packet);
 };
 
 Session.prototype.clientError = function(message) {
@@ -46,7 +46,7 @@ Session.validMethods = ['logon', 'subscribe', 'unsubscribe', 'enter_room', 'move
 
 Session.prototype.parseMessage = function(data){
 
-    log.debug('C->S: ' + data);
+    log.info('C->S: ' + data);
 
     var payload;
 
@@ -111,13 +111,22 @@ Session.prototype.enter_room = function(data) {
         return;
     }
 
+    var oldRoomId = null;
     if(this.currentRoom) {
-        this.currentRoom.emit('user_leave', { userId: this.id, roomId: this.currentRoom.id });
+        oldRoomId = this.currentRoom.id;
+        this.currentRoom.emit('user_leave', { 
+            userId: this.id, 
+            roomId: this.currentRoom.id,
+            newRoomId: data.roomId
+        });
     }
 
-
     this.currentRoom = this._server.getRoom(data.roomId);
-    this.currentRoom.emit('user_enter', { userId: this.id, roomId: data.roomId });
+    this.currentRoom.emit('user_enter', { 
+        userId: this.id, 
+        roomId: data.roomId,
+        oldRoomId: oldRoomId
+    });
 };
 
 Session.prototype.move = function(position) {
