@@ -14,6 +14,7 @@ command `sudo npm install MODULE_NAME` where `MODULE_NAME` is the name of the mo
     * sudo npm install simplesets
     * sudo npm install npmlog
     * sudo npm install finished
+    * sudo npm install byline
 
 3) The above modules will be placed into the `node_modules` folder and are required for the server to start. Alternately you can run the script `install.sh` to install the above dependencies.
 
