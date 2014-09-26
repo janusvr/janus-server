@@ -6,7 +6,7 @@ Installation
 
 1) Download and install node from [nodejs.org](http://nodejs.org)
 
-2) `cd` into the root of the repository where `server.js` is located and run `npm install` to install all module
+2) `cd` into the root of the repository where `server.js` is located and run `sudo npm install` to install all module
 dependencies listed in `package.json`.
 
 3) The above modules will be placed into the `node_modules` folder and are required for the server to start. Alternately
