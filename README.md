@@ -9,8 +9,7 @@ Installation
 2) `cd` into the root of the repository where `server.js` is located and run `sudo npm install` to install all module
 dependencies listed in `package.json`.
 
-3) The above modules will be placed into the `node_modules` folder and are required for the server to start. Alternately
-you can run the script `install.sh` to install the above dependencies.
+3) The modules will be placed into the `node_modules` folder and are required for the server to start.
 
 4) Run the following script in the root of the repository: `./generate_key` to generate a SSL certificate for the server.
 
