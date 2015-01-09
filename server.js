@@ -46,7 +46,7 @@ Server.prototype.start = function() {
     this.server.listen(config.port, function(err){
 
         if(err) {
-            log.errror('Error listening on port');
+            log.error('Error listening on port');
             process.exit(1);
         }
 
@@ -60,7 +60,7 @@ Server.prototype.start = function() {
         this.ssl.listen(config.ssl.port, function(err){
 
             if(err) {
-                log.errror('Error listening on port');
+                log.error('Error listening on port');
                 process.exit(1);
             }
 
