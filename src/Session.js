@@ -42,7 +42,7 @@ Session.prototype.clientError = function(message) {
     this.send('error', {message:message});
 };
 
-Session.validMethods = ['logon', 'subscribe', 'unsubscribe', 'enter_room', 'move', 'chat', 'portal'];
+Session.validMethods = ['logon', 'subscribe', 'unsubscribe', 'enter_room', 'move', 'chat', 'portal', 'usersonline', 'getusersonline', 'usersinroom', 'getusersinroom'];
 
 Session.prototype.parseMessage = function(data){
 
@@ -202,3 +202,14 @@ Session.prototype.portal = function(portal) {
     this.currentRoom.emit('user_portal', data);
     this.send('okay');
 };
+
+Session.prototype.getusersonline = function(data) {
+	var userCount = this._server.usersonline();
+	this.send('usersonline', userCount);
+};
+
+Session.prototype.getusersinroom = function(data) {
+	var usersInRoom = this._server.usersinroom();
+	this.send('usersinroom', usersInRoom);
+};
+

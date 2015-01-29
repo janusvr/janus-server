@@ -6,6 +6,7 @@ var events = require('events');
 var express = require('express');
 var fs = require('fs');
 var sets = require('simplesets');
+var totalConnected = 0;
 
 global.log = require('./src/Logging');
 
@@ -103,12 +104,14 @@ Server.prototype.onConnect = function(socket) {
 
     var self = this;
     var addr = socket.remoteAddress;
+    totalConnected++;
     log.info('Client connected ' + addr);
 
     var s = new Session(this, socket);
     this._sessions.add(s);
 
     socket.on('close', function() {
+    	totalConnected--;
         log.info('Client disconnected: ' + addr);
         self._sessions.remove(s);
     });
@@ -118,6 +121,12 @@ Server.prototype.onConnect = function(socket) {
     });
 };
 
+Server.prototype.usersonline = function() {
+	return totalConnected;
+};
 
+Server.prototype.usersinroom = function() {
+	return 0;
+};
 
 (new Server()).start();
