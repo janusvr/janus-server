@@ -1,6 +1,6 @@
 {
   "name": "janus_server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Janus Prescenc and chat server",
   "main": "server.js",
   "scripts": {
@@ -14,6 +14,7 @@
     "finished": "^1.2.2",
     "npmlog": "^0.1.1",
     "optimist": "^0.6.1",
-    "simplesets": "^1.2.0"
+    "simplesets": "^1.2.0",
+    "mysql": "^2.5.4"
   }
 }

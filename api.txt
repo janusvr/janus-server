@@ -79,3 +79,26 @@ The followed up with a move user_moved event
 When a user creates a portal
 
 {"method":"user_portal", "data":{"userId":"LL","roomId":"345678354764987457","url":"http://...", "pos":[0,0,0], "fwd":[0,1,0]}}
+
+
+Request how many users are connected to the server:
+{"method":"getusersonline"}
+
+Returns:
+{"data": 2, "method": "usersonline"}
+
+To get user count in the current room (NOT WORKING YET, WILL RETURN 0 FOR THE TIME BEING)
+{"method":"getusersinroom"}
+Returns
+{"data": 0, "method": "usersinroom"}
+
+
+Client receives this if the username is registered, no password is supplied or the password is wrong:
+{"data": {"message": "Missing or wrong password"}, "method": "error"}
+{"method": "passwordrequest"}
+
+A example of a successful logon with a registered username:
+SEND: {"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457", "password": "MyPassword"}}
+RECEIVE: {"method": "okay"}
+
+

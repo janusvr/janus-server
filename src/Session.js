@@ -7,9 +7,13 @@ function Session(server, socket) {
     var self = this;
 
     this._socket = socket;
+
+	this._userLocked = false;
     this._authed = false;
+
     this._server = server;
     this._rooms = [];
+	this._usernames = [];
 
     this.id = null;
     this.currentRoom = null;
@@ -19,15 +23,18 @@ function Session(server, socket) {
 
     socket.on('close', function() {
 
-        if(self.currentRoom) {
-            self.currentRoom.emit('user_disconnected', {userId:self.id});
+        if ( self.currentRoom ) {
+            self.currentRoom.emit('user_disconnected', { userId:self.id });
         }
 
-        self._rooms.forEach(function(room){
+        self._rooms.forEach(function(room) {
             room.removeSession(self);
         });
     });
-}
+};
+
+
+
 
 module.exports = Session;
 
@@ -42,9 +49,22 @@ Session.prototype.clientError = function(message) {
     this.send('error', {message:message});
 };
 
-Session.validMethods = ['logon', 'subscribe', 'unsubscribe', 'enter_room', 'move', 'chat', 'portal', 'usersonline', 'getusersonline', 'usersinroom', 'getusersinroom'];
+Session.validMethods = [
+						'logon', 
+						'subscribe', 
+						'unsubscribe', 
+						'enter_room', 
+						'move', 
+						'chat', 
+						'portal', 
+						'usersonline', 
+						'getusersonline', 
+						'usersinroom', 
+						'getusersinroom',
+						'passwordrequest'
+					];
 
-Session.prototype.parseMessage = function(data){
+Session.prototype.parseMessage = function(data) {
 
     //log.info('C->S: ' + data);
 
@@ -53,21 +73,22 @@ Session.prototype.parseMessage = function(data){
     try {
         payload = JSON.parse(data);
     } catch(e) {
+    	log.info("data: " + data);
+    	log.info("payload: " + payload);
         this.clientError('Unable to parse last message');
         return;
     }
-
     if(Session.validMethods.indexOf(payload.method) === -1) {
         this.clientError('Invalid method: ' + payload.method);
         return;
     }
 
-    if(payload.method !== 'logon' && !this._authed) {
-        this.clientError('Not signed on must call logon first');
+    if(payload.method !== 'logon' && !this._authed ) {
+        this.clientError('Missing or wrong password');
         return;
     }
 
-    Session.prototype[payload.method].call(this,payload.data);
+	Session.prototype[payload.method].call(this,payload.data);
 };
 
 
@@ -77,33 +98,66 @@ Session.prototype.parseMessage = function(data){
 /*  Client methods                                                       */
 /*************************************************************************/
 
+
+// ## User Logon ##
 Session.prototype.logon = function(data) {
+
+	var userInfo = this._server.getUserInfo(data.userId);
+
     if(data.userId === undefined) {
         this.clientError('Missing userId in data packet');
         return;
     }
 
-    if(data.roomId === undefined) {
+	if(data.roomId === undefined) {
         this.clientError('Missing roomId in data packet');
         return;
     }
-
-    //TODO: Auth
 
     if(!this._server.isNameFree(data.userId)) {
         this.clientError('User name is already in use');
         return;
     }
 
-    this._authed = true;
-    this.id = data.userId;
+	if ( data.userId !== undefined) {
 
-    log.info('User: ' + this.id + ' signed on');
 
-    this.currentRoom = this._server.getRoom(data.roomId);
-    this.subscribe(data);
+		if ( userInfo == 0 ) {
+
+			this._authed = true;
+		}
+
+		else {
+			var storedUserPass = userInfo[1];
+			var transmittedUserPass = data.password;
+
+			if ( transmittedUserPass !== "" ) {
+				if ( transmittedUserPass === storedUserPass ) {
+					this._authed = true;
+					this.id = data.userId;
+					log.info(data.userId + " authenticated.");
+				}
+				else {
+					log.info("Failed password authentication by username: " + userInfo[0]);
+					this.send('passwordrequest');
+				}
+			}
+		}
+	}
+
+
+
+    //log.info('User: ' + this.id + ' signed on');
+
+	if ( this._authed == true ) {
+		
+	    this.currentRoom = this._server.getRoom(data.roomId);
+		this.subscribe(data);
+	}
 };
 
+
+// ## user enter room ##
 Session.prototype.enter_room = function(data) {
 
     if(data.roomId  === undefined) {
@@ -129,6 +183,8 @@ Session.prototype.enter_room = function(data) {
     });
 };
 
+
+// ## user move ##
 Session.prototype.move = function(position) {
 
     var data = {
@@ -140,6 +196,8 @@ Session.prototype.move = function(position) {
     this.currentRoom.emit('user_moved', data);
 };
 
+
+// ## user chat ##
 Session.prototype.chat = function(message) {
 
     var data = {
@@ -212,4 +270,5 @@ Session.prototype.getusersinroom = function(data) {
 	var usersInRoom = this._server.usersinroom();
 	this.send('usersinroom', usersInRoom);
 };
+
 

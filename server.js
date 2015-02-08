@@ -6,7 +6,11 @@ var events = require('events');
 var express = require('express');
 var fs = require('fs');
 var sets = require('simplesets');
+
+var mysql = require('mysql');
+
 var totalConnected = 0;
+var userList = [];
 
 global.log = require('./src/Logging');
 
@@ -18,6 +22,7 @@ function Server() {
 
     this._sessions = new sets.Set();
     this._rooms = {};
+	this.updateUserList();
 }
 
 Server.prototype.getRoom = function(roomId) {
@@ -28,6 +33,7 @@ Server.prototype.getRoom = function(roomId) {
     return this._rooms[roomId];
 };
 
+// ## Check if username is in use ##
 Server.prototype.isNameFree = function(name) {
 
     var free = true;
@@ -39,6 +45,7 @@ Server.prototype.isNameFree = function(name) {
     return free;
 };
 
+// ## Start Socket Server ##
 Server.prototype.start = function() {
 
     log.info('Starting socket server...');
@@ -73,6 +80,8 @@ Server.prototype.start = function() {
     this.startWebServer();
 };
 
+
+// ## start web server ##
 Server.prototype.startWebServer = function() {
 
     var self = this;
@@ -100,6 +109,7 @@ Server.prototype.startWebServer = function() {
 
 };
 
+// ## action on client connection ##
 Server.prototype.onConnect = function(socket) {
 
     var self = this;
@@ -121,12 +131,50 @@ Server.prototype.onConnect = function(socket) {
     });
 };
 
+// ## return global client count connected to server ##
 Server.prototype.usersonline = function() {
 	return totalConnected;
 };
 
-Server.prototype.usersinroom = function() {
+// ## return client count in current room ## TODO not working yet
+Server.prototype.usersinroom = function(room) {
 	return 0;
+};
+
+Server.prototype.updateUserList = function() {
+	var dbcon = mysql.createConnection({
+		database : 'janusvr',
+		host     : 'localhost',
+		user     : 'janusvr',
+		password : 'janusvr',
+	});
+
+	while(userList.length > 0) {
+		userList.pop();
+	}
+
+	dbcon.connect(function(err) {
+		// connected! (unless `err` is set)
+	});
+
+	dbcon.query('SELECT * FROM usernames ORDER BY user DESC', function(err, rows, fields) {
+		for (var i in rows) {
+			userList.push([rows[i].user, rows[i].password, rows[i].lastlogin, rows[i].isloggedin]);
+		}
+	});
+
+
+};
+
+Server.prototype.getUserInfo = function(username) {
+	var returnVar = 0;
+	for (var i = 0; i <= userList.length-1; i++) {
+		//log.info(username + " - " + userList[i][0]);
+		if ( userList[i][0].toLowerCase() === username.toLowerCase() ) {
+			returnVar = userList[i];
+		}
+	}
+	return returnVar;
 };
 
 (new Server()).start();
