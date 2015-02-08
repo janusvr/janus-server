@@ -162,7 +162,7 @@ Server.prototype.updateUserList = function() {
 			userList.push([rows[i].user, rows[i].password, rows[i].lastlogin, rows[i].isloggedin]);
 		}
 	});
-
+	dbcon.end();
 
 };
 
