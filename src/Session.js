@@ -125,6 +125,7 @@ Session.prototype.logon = function(data) {
 		if ( userInfo == 0 ) {
 
 			this._authed = true;
+			this.id = data.userId;
 		}
 
 		else {
@@ -147,10 +148,10 @@ Session.prototype.logon = function(data) {
 
 
 
-    //log.info('User: ' + this.id + ' signed on');
 
 	if ( this._authed == true ) {
 		
+    log.info('User: ' + this.id + ' signed on ' + this._authed);
 	    this.currentRoom = this._server.getRoom(data.roomId);
 		this.subscribe(data);
 	}
