@@ -23,6 +23,7 @@ function Server() {
     this._sessions = new sets.Set();
     this._rooms = {};
 	this.updateUserList();
+	var timerId = setInterval(this.updateUserList, 300000); // Update username and pass list every 5 min
 }
 
 Server.prototype.getRoom = function(roomId) {
@@ -143,10 +144,10 @@ Server.prototype.usersinroom = function(room) {
 
 Server.prototype.updateUserList = function() {
 	var dbcon = mysql.createConnection({
-		database : 'janusvr',
-		host     : 'localhost',
-		user     : 'janusvr',
-		password : 'janusvr',
+		database : config.MySQL_Database,
+		host     : config.MySQL_Hostname,
+		user     : config.MySQL_Username,
+		password : config.MySQL_Password,
 	});
 
 	while(userList.length > 0) {
