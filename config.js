@@ -15,6 +15,10 @@ module.exports = {
             key: fs.readFileSync('server-key.pem'),
             cert: fs.readFileSync('server-cert.pem'),
         }
-    }
+    },
+	MySQL_Hostname: 'localhost',
+	MySQL_Database: 'janusvr',
+	MySQL_Username: 'janusvr',
+	MySQL_Password: 'janusvr',
 
 };
