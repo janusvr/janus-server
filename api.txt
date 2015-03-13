@@ -1,74 +1,98 @@
 
-Server listens on port 5566, connect to it with an ordinary socket.
+Server listens on port 5566 by default, connect to it with an ordinary socket.
 
 Packets are utf-8 encoded json objects formated onto a single line.
 
 Every packet must contain a "method" field
-Every packet can also optionally contain a "data" feild;
+Every packet can also optionally contain a "data" field;
 
-You can test by using telnet:
+You can test that the server is up by using telnet.  For example:
 
 > telnet babylon.vrsites.com 5566
 
 Copy and past the examples below to see how it works
 
-
-Client -> Server Methods:
-
-Need to do this before anything else, roomId is the room you are starting in,you will be subscribed to that rooms events
+==============================
+//Client -> Server Methods://
+==============================
+"logon" Method
+---------------
+Client -> Server Message Example:
 
 {"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457"}}
 
-Version is the client version, TODO: Reject incompatable clients
-
-Logon will fail if a client is already using that name TODO: Add authentication
+Server -> Client Response Example:
 
 Will receive: {"method":"okay"} if everything was okay or a {"method":"error", "data":{"message": "Some error string"}}
 
+You need to do this before anything else.  roomId is the room you are starting in and you will be subscribed to that room's events.  Version is the client version and roomId is a MD5 hash of the room's URL. Logon will fail if a client is already using that name 
+
+TODO: Add authentication
+TODO: Reject incompatable clients  
+
+"enter_room" Method
+--------------------
 When you pass through a portal:
 
 {"method":"enter_room", "data": { "roomId": "345678354764987457" }}
 
+"move" Method
+--------------
 When the user position has moved:
 
 {"method":"move", "data": [0,0,0,0,0,0,0] }
 
 Data can be anything you like, it will be passed to observers without validation
 
+"chat" Method
+--------------
 When the user wants to send a text message:
 
 {"method":"chat", "data": "The message"}
 
 You can pass anything through the data field and it will be sent to all clients subscribed to the current room.
 
+"subscribe" Method
+-------------------
 When you wish to start receiving events about a room (you are in that room or looking through a portal)
 
 {"method":"subscribe", "data": { "roomId": "345678354764987457" }}
 
 Will receive: {"method":"okay"} if everything was okay
 
+"unsubscribe" Method
+---------------------
 When you no longer wish to receive messages from that room because none of its portals are visible
 
 {"method":"unsubscribe", "data": { "roomId": "345678354764987457" }}
 
 Will receive: {"method":"okay"} if everything was okay
 
+"portal" Method
+----------------
 When a user creates a new portal:
 
 {"method":"portal", "data":{"url":"http://...", "pos":[1,2,4], "fwd":[0,1,0]}}
 
 Will receive: {"method":"okay"} if everything was okay
 
-Server -> Client Notifications:
-
+====================================
+//Server -> Client Notifications://
+====================================
+"user_moved" notification
+--------------------------
 When a user moves in any room that you are subscribed too, will recive notification about your own movement
 
 {"method":"user_moved","data":{"roomId":"fgdgd","userId":"LL","position":[0,0,0,0,0,0,0]}}
 
+"user_chat" notification
+-------------------------
 When a user says something in text chat
 
 {"method":"user_chat", "data":{"message":"The message", "userId":"LL"}}
 
+"user_leave"/"user_enter" notification
+---------------------------------------
 When a user changes room:
 
 {"method":"user_leave", "data":{"userId":"LL","roomId":"oldRoomId"}}
@@ -76,6 +100,8 @@ When a user changes room:
 
 The followed up with a move user_moved event
 
+"user_portal" notification
+---------------------------
 When a user creates a portal
 
 {"method":"user_portal", "data":{"userId":"LL","roomId":"345678354764987457","url":"http://...", "pos":[0,0,0], "fwd":[0,1,0]}}
