@@ -49,6 +49,6 @@ Press / once JanusVR has started.  JanusVR will list all the servers you are try
  
 './generate_key' will generate 2 files based on your input: *server-key.pem* and *server-cert.pem*.  Just delete these and execute './generate_key' again.
 
-I have a general problem and need some troubleshooting info about the server application.
+* I have a general problem and need some troubleshooting info about the server application.
 
 No problem.  check out the server.log file.  Just tail it and you will see the log being written to as activities take place - e.g. logging on etc.
