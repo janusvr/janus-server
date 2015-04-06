@@ -29,7 +29,8 @@ module.exports = {
 	*/
 	server_mode: 2,
 
-	
+	/* wether or not to log connection stats */
 	access_stats: 1,
+	/* wether or not to show who's online or now */
 	online_users: 1,
 };

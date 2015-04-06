@@ -117,7 +117,9 @@ Server.prototype.onConnect = function(socket) {
     var addr = socket.remoteAddress;
     totalConnected++;
     log.info('Client connected ' + addr);
-	this.access_log(addr);
+	if ( config.access_stats === 1 ) {
+		this.access_log(addr);
+	}
 //insert access here
 
 

@@ -24,19 +24,22 @@ function Session(server, socket) {
     byline(socket).on('data', this.parseMessage.bind(this));
 
     socket.on('close', function() {
-		var dbcon = mysql.createConnection({
-			database : config.MySQL_Database,
-			host     : config.MySQL_Hostname,
-			user     : config.MySQL_Username,
-			password : config.MySQL_Password,
-		});
-		dbcon.connect(function(err) {
-			// connected! (unless `err` is set)
-		});
-		var post = {userid: self.id};
-		dbcon.query('DELETE FROM online_users WHERE ?', post, function(err, result) {
-		});
-		dbcon.end();
+		// let's remove the userId from the online list
+		if (config.online_users === 1) {
+			var dbcon = mysql.createConnection({
+				database : config.MySQL_Database,
+				host     : config.MySQL_Hostname,
+				user     : config.MySQL_Username,
+				password : config.MySQL_Password,
+			});
+			dbcon.connect(function(err) {
+				// connected! (unless `err` is set)
+			});
+			var post = {userid: self.id};
+			dbcon.query('DELETE FROM online_users WHERE ?', post, function(err, result) {
+			});
+			dbcon.end();
+		}
 
         if ( self.currentRoom ) {
             self.currentRoom.emit('user_disconnected', { userId:self.id });
@@ -119,12 +122,14 @@ Session.prototype.parseMessage = function(data) {
 Session.prototype.logon = function(data) {
 
 	var userInfo = this._server.getUserInfo(data.userId);
-	var dbcon = mysql.createConnection({
-		database : config.MySQL_Database,
-		host     : config.MySQL_Hostname,
-		user     : config.MySQL_Username,
-		password : config.MySQL_Password,
-	});
+	if ( config.online_users === 1 ) {
+		var dbcon = mysql.createConnection({
+			database : config.MySQL_Database,
+			host     : config.MySQL_Hostname,
+			user     : config.MySQL_Username,
+			password : config.MySQL_Password,
+		});
+	}
 
 
 
@@ -178,14 +183,15 @@ Session.prototype.logon = function(data) {
 		log.info('User: ' + this.id + ' signed on ' + this._authed);
 	    this.currentRoom = this._server.getRoom(data.roomId);
 		this.subscribe(data);
-
-		dbcon.connect(function(err) {
-			// connected! (unless `err` is set)
-		});
-		var post = {userid: data.userId};
-		dbcon.query('INSERT INTO online_users SET ?', post, function(err, result) {
-		});
-		dbcon.end();
+		if ( config.online_users === 1 ) {
+			dbcon.connect(function(err) {
+				// connected! (unless `err` is set)
+			});
+			var post = {userid: data.userId};
+			dbcon.query('INSERT INTO online_users SET ?', post, function(err, result) {
+			});
+			dbcon.end();
+		}
 	}
 };
 
