@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-var config = require(args.config || './config.js');
-=======
 var args = require('optimist').argv;
->>>>>>> 432389850fa2f4a0ecda71d87cc740c949186bf5
 var byline = require('byline');
 var config = require(args.config || '../config.js');
 var mysql = require('mysql');
