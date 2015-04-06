@@ -1,6 +1,14 @@
 Janus VR Presence Server
 ========================
 
+Introduction
+------------
+
+The Janus Presence Server is an open source project started by LisaLionheart which allows one JanusVR client to share information another client.  It enables multiplayer.  The server software is what allows each of the JanusVR clients know where other avatars are geographically and who else is in the same virtual space.  It is also what enables thing like chat.
+
+If you need more information or would like to get involved, you will find most JanusVR enthusiasts on the [JanusVR subreddit](http://www.reddit.com/r/janusVR/).
+
+If you want to understand how a client interacts with the Janus VR Presence Server then checkout the Application Programming Interface documentation called README.md.
 
 Installation
 ------------
