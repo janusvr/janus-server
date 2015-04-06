@@ -24,6 +24,7 @@ looking under the Computer Name field.
 
 
 **Remember to configure the config.js file with your MySQL settings and server mode options.**
+The MySQL database tables are provided in **janusvr.sql**
 
 
 Running the Server
