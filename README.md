@@ -23,6 +23,9 @@ looking under the Computer Name field.
 6. When asked to provide a challenge password while generating the SSL certificate press enter to skip setting a password.
 
 
+**Remember to configure the config.js file with your MySQL settings and server mode options.**
+
+
 Running the Server
 ------------------
 
