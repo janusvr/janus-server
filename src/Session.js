@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 var config = require(args.config || './config.js');
+=======
+var args = require('optimist').argv;
+>>>>>>> 432389850fa2f4a0ecda71d87cc740c949186bf5
 var byline = require('byline');
+var config = require(args.config || '../config.js');
+var mysql = require('mysql');
 
 
 function Session(server, socket) {
@@ -22,9 +28,26 @@ function Session(server, socket) {
     byline(socket).on('data', this.parseMessage.bind(this));
 
     socket.on('close', function() {
+		// let's remove the userId from the online list
+		if (config.online_users === 1) {
+			var dbcon = mysql.createConnection({
+				database : config.MySQL_Database,
+				host     : config.MySQL_Hostname,
+				user     : config.MySQL_Username,
+				password : config.MySQL_Password,
+			});
+			dbcon.connect(function(err) {
+				// connected! (unless `err` is set)
+			});
+			var post = {userid: self.id};
+			dbcon.query('DELETE FROM online_users WHERE ?', post, function(err, result) {
+			});
+			dbcon.end();
+		}
 
         if ( self.currentRoom ) {
             self.currentRoom.emit('user_disconnected', { userId:self.id });
+
         }
 
         self._rooms.forEach(function(room) {
@@ -103,6 +126,16 @@ Session.prototype.parseMessage = function(data) {
 Session.prototype.logon = function(data) {
 
 	var userInfo = this._server.getUserInfo(data.userId);
+	if ( config.online_users === 1 ) {
+		var dbcon = mysql.createConnection({
+			database : config.MySQL_Database,
+			host     : config.MySQL_Hostname,
+			user     : config.MySQL_Username,
+			password : config.MySQL_Password,
+		});
+	}
+
+
 
     if(data.userId === undefined) {
         this.clientError('Missing userId in data packet');
@@ -150,9 +183,18 @@ Session.prototype.logon = function(data) {
 
 	if ( this._authed == true ) {
 		
-    log.info('User: ' + this.id + ' signed on ' + this._authed);
+		log.info('User: ' + this.id + ' signed on ' + this._authed);
 	    this.currentRoom = this._server.getRoom(data.roomId);
 		this.subscribe(data);
+		if ( config.online_users === 1 ) {
+			dbcon.connect(function(err) {
+				// connected! (unless `err` is set)
+			});
+			var post = {userid: data.userId};
+			dbcon.query('INSERT INTO online_users SET ?', post, function(err, result) {
+			});
+			dbcon.end();
+		}
 	}
 };
 
