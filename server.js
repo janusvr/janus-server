@@ -117,6 +117,9 @@ Server.prototype.onConnect = function(socket) {
     var addr = socket.remoteAddress;
     totalConnected++;
     log.info('Client connected ' + addr);
+	this.access_log(addr);
+//insert access here
+
 
     var s = new Session(this, socket);
     this._sessions.add(s);
@@ -131,6 +134,24 @@ Server.prototype.onConnect = function(socket) {
         log.error('Socket error: ', err);
     });
 };
+
+// ## log access
+Server.prototype.access_log = function(addr) {
+	var dbcon = mysql.createConnection({
+		database : config.MySQL_Database,
+		host     : config.MySQL_Hostname,
+		user     : config.MySQL_Username,
+		password : config.MySQL_Password,
+	});
+
+	dbcon.connect(function(err) {
+		// connected! (unless `err` is set)
+	});
+	var post = {ip: addr};
+	dbcon.query('INSERT INTO access_statistics SET ?', post,  function(err, results) {
+	});
+	dbcon.end();
+}
 
 // ## return global client count connected to server ##
 Server.prototype.usersonline = function() {
@@ -179,3 +200,4 @@ Server.prototype.getUserInfo = function(username) {
 };
 
 (new Server()).start();
+
