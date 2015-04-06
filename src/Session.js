@@ -1,4 +1,4 @@
-
+var config = require(args.config || './config.js');
 var byline = require('byline');
 
 
@@ -121,8 +121,7 @@ Session.prototype.logon = function(data) {
 
 	if ( data.userId !== undefined) {
 
-
-		if ( userInfo == 0 ) {
+		if ( userInfo == 0 && config.ServerMode != 2 ) {
 
 			this._authed = true;
 			this.id = data.userId;
