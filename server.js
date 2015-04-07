@@ -39,7 +39,10 @@ Server.prototype.isNameFree = function(name) {
 };
 
 Server.prototype.start = function() {
-
+    console.log('========================');
+    console.log('Janus VR Presence Server')
+    console.log('========================');
+    console.log('Listening on port ' + config.port);
     log.info('Starting socket server...');
 
     this.server = net.createServer(this.onConnect.bind(this));
@@ -96,7 +99,9 @@ Server.prototype.startWebServer = function() {
 
     this.ws.listen(config.webServer);
     log.info('Webserver started on port: ' + config.webServer);
-
+    
+    console.log('Start Date/Time: ' + Date());
+    console.log('See server.log for activity information');
 };
 
 Server.prototype.onConnect = function(socket) {
