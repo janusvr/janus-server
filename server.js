@@ -95,7 +95,7 @@ Server.prototype.startWebServer = function() {
     });
 
     this.ws.use(router);
-    this.ws.use(express.static(__dirname + '/public')); //serve out public website associated with this server instance
+    this.ws.use(express.static(__dirname + '/public')); //serve out public website and firebox room associated with this server
 
     this.ws.listen(config.webServer);
     log.info('Web Server listening on port: ' + config.webServer);

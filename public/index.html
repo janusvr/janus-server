@@ -91,5 +91,24 @@
             r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
             ga('create','UA-XXXXX-X','auto');ga('send','pageview');
         </script>
+
+        <FireBoxRoom>
+          <Assets>
+            <AssetSound id="underwater" src="/assets/sounds/under.mp3"/>
+            <AssetObject id="server" src="/assets/models/server.obj" mtl="/assets/models/server.mtl" />
+            <AssetImage id="sky_left" src="/assets/textures/black_pixel.jpg"/>  
+            <AssetImage id="sky_right" src="/assets/textures/black_pixel.jpg"/> 
+            <AssetImage id="sky_front" src="/assets/textures/black_pixel.jpg"/>
+            <AssetImage id="sky_back" src="/assets/textures/black_pixel.jpg"/>
+            <AssetImage id="sky_up" src="/assets/textures/black_pixel.jpg"/>
+            <AssetImage id="sky_down" src="/assets/textures/black_pixel.jpg"/>
+          </Assets>
+          <Room default_sounds="false" use_local_asset="room_plane" col="0.100 0.100 0.100" visible="true" skybox_left_id="sky_left" skybox_right_id="sky_right" skybox_front_id="sky_front" skybox_back_id="sky_back" skybox_up_id="sky_up" skybox_down_id="sky_down">
+            <Object id="server" pos="0 1.5 3.5" lighting="false" col="1 1 1" xdir="-0.71 0 0.71" ydir="0 -1 0" zdir="0.71 0 0.71" scale="0.1 0.1 0.1"></Object>
+            <Text pos="-0.1 0.9 3.4" fwd="0 0 -1" col="0.5 0.5 0.5" xdir="-1 0 0" zdir="0 0 -1" ydir="0 1 0" scale="2 2 2" locked="false">Janus VR Presence Server</Text>
+            <Sound id="underwater" rect="-100 -100 100 100" loop="true" />
+          </Room>
+        </FireBoxRoom>
+
     </body>
 </html>
