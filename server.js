@@ -94,12 +94,8 @@ Server.prototype.startWebServer = function() {
         logFile.pipe(res);
     });
 
-    router.get('/', function(req,res){
-        res.send(200, 'Nothing to see here ... yet');
-    });
-
-
     this.ws.use(router);
+    this.ws.use(express.static(__dirname + '/public')); //serve out public website associated with this server instance
 
     this.ws.listen(config.webServer);
     log.info('Web Server listening on port: ' + config.webServer);
