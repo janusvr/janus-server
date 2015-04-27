@@ -154,10 +154,10 @@ Server.prototype.access_log = function(addr) {
 
 	dbcon.connect(function(err) {
 		// connected! (unless `err` is set)
+        dbcon.query('INSERT INTO access_statistics SET ?', post,  function(err, results) {
+        });
 	});
 	var post = {ip: addr};
-	dbcon.query('INSERT INTO access_statistics SET ?', post,  function(err, results) {
-	});
 	dbcon.end();
 }
 

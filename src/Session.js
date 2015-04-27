@@ -25,25 +25,12 @@ function Session(server, socket) {
 
     socket.on('close', function() {
 		// let's remove the userId from the online list
-		if (config.online_users === 1) {
-			var dbcon = mysql.createConnection({
-				database : config.MySQL_Database,
-				host     : config.MySQL_Hostname,
-				user     : config.MySQL_Username,
-				password : config.MySQL_Password,
-			});
-			dbcon.connect(function(err) {
-				// connected! (unless `err` is set)
-			});
-			var post = {userid: self.id};
-			dbcon.query('DELETE FROM online_users WHERE ?', post, function(err, result) {
-			});
-			dbcon.end();
-		}
+        if (config.online_users === 1) {
+            self.remove_online_user(self.id);
+        }
 
         if ( self.currentRoom ) {
             self.currentRoom.emit('user_disconnected', { userId:self.id });
-
         }
 
         self._rooms.forEach(function(room) {
@@ -65,23 +52,24 @@ Session.prototype.send = function(method, data) {
 
 Session.prototype.clientError = function(message) {
     log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
+    self.remove_online_user(this.id);
     this.send('error', {message:message});
 };
 
 Session.validMethods = [
-						'logon', 
-						'subscribe', 
-						'unsubscribe', 
-						'enter_room', 
-						'move', 
-						'chat', 
-						'portal', 
-						'usersonline', 
-						'getusersonline', 
-						'usersinroom', 
-						'getusersinroom',
-						'passwordrequest'
-					];
+    'logon', 
+    'subscribe', 
+    'unsubscribe', 
+    'enter_room', 
+    'move', 
+    'chat', 
+    'portal', 
+    'usersonline', 
+    'getusersonline', 
+    'usersinroom', 
+    'getusersinroom',
+    'passwordrequest'
+];
 
 Session.prototype.parseMessage = function(data) {
 
@@ -309,4 +297,19 @@ Session.prototype.getusersinroom = function(data) {
 	this.send('usersinroom', usersInRoom);
 };
 
+Session.prototype.remove_online_user = function(userID) {
+    var dbcon = mysql.createConnection({
+        database : config.MySQL_Database,
+        host     : config.MySQL_Hostname,
+        user     : config.MySQL_Username,
+        password : config.MySQL_Password,
+    });
+    dbcon.connect(function(err) {
+        // connected! (unless `err` is set)
+    });
+    var post = {userid: userID};
+        dbcon.query('DELETE FROM online_users WHERE ?', post, function(err, result) {
+    });
+    dbcon.end();
+};
 
