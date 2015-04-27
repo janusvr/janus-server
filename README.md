@@ -24,8 +24,8 @@ looking under the Computer Name field.
 
 
 **Remember to configure the config.js file with your MySQL settings and server mode options.**
-The MySQL database tables are provided in **janusvr.sql**
 
+The MySQL database tables are provided in **janusvr.sql**
 
 Running the Server
 ------------------
@@ -40,4 +40,19 @@ confirmation that the server has started.
 should also work here) and where `5566` is the port that the server is running on as defined in `config.js`. If you are
 on OSX and are running the JanusVR client inside a virtual machine (i.e.
 [VMware Fusion](http://www.vmware.com/products/fusion)) you will need to use the network IP of your computer to connect
-as `localhost` may not work from within the virtual machine.
+as `localhost` may not work from within the virtual machine.  
+
+Troubleshooting
+------------------
+
+* I cannot see other people when using JanusVR and I know others have the same server configured.
+
+Press / once JanusVR has started.  JanusVR will list all the servers you are trying to connect to or ARE connected to.  You should see your server in this list.  If your server is red then it means that JanusVR cannot connect to it.  Check firewall settings on the server to make sure the port 5566 is open and able to receive traffic.  Check the server.log file on the server to see if there are any errors.
+
+* I entered the wrong details in for my key after executing './generate_key'.
+ 
+'./generate_key' will generate 2 files based on your input: *server-key.pem* and *server-cert.pem*.  Just delete these and execute './generate_key' again.
+
+* I have a general problem and need some troubleshooting info about the server application.
+
+No problem.  check out the server.log file.  Just tail it and you will see the log being written to as activities take place - e.g. logging on etc.
