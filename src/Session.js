@@ -174,9 +174,7 @@ Session.prototype.add_online_user = function( userID ) {
         password : config.MySQL_Password,
     });
 
-    dbcon.connect(function(err) {
-        // connected! (unless `err` is set)
-    });
+    dbcon.connect();
 
     var post = {userid: userID};
     dbcon.query('INSERT INTO online_users SET ?', post, function(err, result) {
@@ -307,9 +305,7 @@ Session.prototype.remove_online_user = function(userID) {
         password : config.MySQL_Password,
     });
 
-    dbcon.connect(function(err) {
-        // connected! (unless `err` is set)
-    });
+    dbcon.connect();
 
     var post = {userid: userID};
     dbcon.query('DELETE FROM online_users WHERE ?', post, function(err, result) {

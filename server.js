@@ -152,9 +152,7 @@ Server.prototype.access_log = function(addr) {
         password : config.MySQL_Password,
     });
 
-    dbcon.connect(function(err) {
-        // connected! (unless `err` is set)
-    });
+    dbcon.connect();
 
     var post = {ip: addr};
     dbcon.query('INSERT INTO access_statistics SET ?', post,  function(err, results) {
@@ -186,9 +184,7 @@ Server.prototype.updateUserList = function() {
         userList.pop();
     }
 
-    dbcon.connect(function(err) {
-        // connected! (unless `err` is set)
-    });
+    dbcon.connect();
 
     dbcon.query('SELECT * FROM usernames ORDER BY user DESC', function(err, rows, fields) {
         for (var i in rows) {
