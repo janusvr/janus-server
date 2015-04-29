@@ -29,22 +29,6 @@ CREATE TABLE `access_statistics` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `assets`
---
-
-DROP TABLE IF EXISTS `assets`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `assets` (
-  `type` varchar(128) DEFAULT NULL,
-  `description` blob,
-  `htmlstring` blob,
-  `dateadded` datetime DEFAULT NULL,
-  `shortname` varchar(128) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `blacklist`
 --
 
