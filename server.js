@@ -139,6 +139,7 @@ Server.prototype.onConnect = function(socket) {
     });
 
     socket.on('error', function(err){
+	log.error(addr);
         log.error('Socket error: ', err);
     });
 };
