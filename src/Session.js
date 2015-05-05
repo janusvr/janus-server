@@ -52,7 +52,7 @@ Session.prototype.send = function(method, data) {
 
 Session.prototype.clientError = function(message) {
     log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
-    self.remove_online_user(this.id);
+    if (this.id != '') { this.remove_online_user(this.id);}
     this.send('error', {message:message});
 };
 
@@ -111,7 +111,10 @@ Session.prototype.logon = function(data) {
 
     var userInfo = this._server.getUserInfo(data.userId);
 
-    if(data.userId === undefined) {
+    //log.info("Debug:");
+    //log.info(data);
+
+    if(data.userId === undefined || data.userId === '') {
         this.clientError('Missing userId in data packet');
         return;
     }
