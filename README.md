@@ -1,6 +1,6 @@
 Janus VR Presence Server
 ========================
-
+This version is the one that VR Sites runs, which is the default server unless another is specified in your `<Room>` code. [Read here](http://www.dgp.toronto.edu/~mccrae/projects/firebox/notes.html#multiserver) to learn how your room can specifiy a different server.
 
 Installation
 ------------
