@@ -1,6 +1,8 @@
 Janus VR Presence Server
 ========================
 
+This version is the one that VR Sites runs, which is the default server unless another is specified in your `<Room>` code. [Read here](http://www.dgp.toronto.edu/~mccrae/projects/firebox/notes.html#multiserver) to learn how your room can specifiy a different server.
+
 Introduction
 ------------
 
@@ -31,13 +33,16 @@ looking under the Computer Name field.
 6. When asked to provide a challenge password while generating the SSL certificate press enter to skip setting a password.
 
 
+**Remember to configure the config.js file with your MySQL settings and server mode options.**
+
+The MySQL database tables are provided in **janusvr.sql**
+
 Running the Server
 ------------------
 
 1. `cd` to the root of the repository where `server.js` is located.
 
-2. Run the following command to start the server: `node server.js`. Note that the server currently does not display a
-confirmation that the server has started.
+2. Run the following command to start the server: `node server.js`.
 
 3. Create a shortcut to JanusVR and add the following arguments after the path to the JanusVR executable:
 `-server my.server.com -port 5566` where `my.server.com` is the IP address of your computer (`127.0.0.1` or `localhost`
