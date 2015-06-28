@@ -1,6 +1,16 @@
 Janus VR Presence Server
 ========================
+
 This version is the one that VR Sites runs, which is the default server unless another is specified in your `<Room>` code. [Read here](http://www.dgp.toronto.edu/~mccrae/projects/firebox/notes.html#multiserver) to learn how your room can specifiy a different server.
+
+Introduction
+------------
+
+The Janus VR Presence Server is an open source project started by LisaLionheart which allows one JanusVR client to share information another client.  It enables multiplayer.  The server software is what allows each of the JanusVR clients know where other avatars are geographically and who else is in the same virtual space.  It is also what enables thing like chat.
+
+If you need more information or would like to get involved, you will find most JanusVR enthusiasts on the [JanusVR subreddit](http://www.reddit.com/r/janusVR/).
+
+If you want to understand how a client interacts with the Janus VR Presence Server then checkout the Application Programming Interface documentation called README.md.
 
 Installation
 ------------

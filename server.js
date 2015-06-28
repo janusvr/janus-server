@@ -52,18 +52,22 @@ Server.prototype.start = function() {
     console.log('========================');
     console.log('Janus VR Presence Server');
     console.log('========================');
-    console.log('Listening on port ' + config.port);
-    log.info('Starting socket server...');
+    log.info('Startup date/time: ' + Date());
+
+    console.log('See server.log for activity information and config.js for configuration');
+    console.log('Log level: ' + config.logLevel);
+    console.log('Startup date/time: ' + Date());
 
     this.server = net.createServer(this.onConnect.bind(this));
     this.server.listen(config.port, function(err){
 
         if(err) {
-            log.error('Error listening on port');
+            log.error('Socket Server error listening on port: ' + config.port);
             process.exit(1);
         }
 
-        log.info('Server listening');
+        log.info('Socket Server listening on port: ' + config.port);
+        console.log('Socket Server listening on port: ' + config.port);
 
     });
 
@@ -73,11 +77,11 @@ Server.prototype.start = function() {
         this.ssl.listen(config.ssl.port, function(err){
 
             if(err) {
-                log.error('Error listening on port');
+                log.error('SSL Server error listening on port: ' + config.ssl.port);
                 process.exit(1);
             }
 
-            log.info('Server listening (SSL)');
+            log.info('SSL Server listening on port: ' + config.ssl.port);
 
         });
     }
@@ -111,9 +115,9 @@ Server.prototype.startWebServer = function() {
 
     this.ws.listen(config.webServer);
     log.info('Webserver started on port: ' + config.webServer);
-
     console.log('Start Date/Time: ' + Date());
     console.log('See server.log for activity information');
+
 };
 
 // ## action on client connection ##
@@ -207,4 +211,3 @@ Server.prototype.getUserInfo = function(username) {
 };
 
 (new Server()).start();
-
