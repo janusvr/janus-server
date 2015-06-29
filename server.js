@@ -81,6 +81,7 @@ Server.prototype.start = function() {
                 process.exit(1);
             }
 
+            console.log('SSL Server listening on port: ' + config.ssl.port);
             log.info('SSL Server listening on port: ' + config.ssl.port);
 
         });

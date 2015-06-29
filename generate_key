@@ -1,5 +1,8 @@
 #!/bin/bash
-openssl genrsa -out server-key.pem 1024
-openssl req -new -key server-key.pem -out server-cert.tmp
-openssl x509 -req -days 365 -in server-cert.tmp -signkey server-key.pem  -out server-cert.pem
-rm server-cert.tmp
+mkdir cert
+openssl genrsa -out cert/server-key.pem 1024
+openssl req -new -key cert/server-key.pem -out cert/server-cert.tmp
+openssl x509 -req -days 365 -in cert/server-cert.tmp -signkey cert/server-key.pem  -out cert/server-cert.pem
+rm cert/server-cert.tmp
+echo -----BEGIN CERTIFICATE----- > cert/cabundle.pem
+echo -----END CERTIFICATE----- >> cert/cabundle.pem
