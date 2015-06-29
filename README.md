@@ -23,7 +23,17 @@ configuration.
 
 3. The modules will be placed into the `node_modules` folder and are required for the server to start.
 
-4. Run the following script in the root of the repository: `./generate_key` to generate a SSL certificate for the server.
+4. a. For self-signed SSL, run the following script in the root of the repository: `./generate_key` to generate a SSL certificate for the server.
+
+   OR
+
+   b. If you have a valid SSL certificate: 
+
+      Save the key file as *cert/server-key.pem*
+
+      Save the certificate file as *cert/server-cert.pem*
+
+      Save your CA's intermediate certificates as *cert/cabundle.pem*
 
 5. When asked to provide a Common Name for the server enter the domain name the server will be running on. I.e.
 `yourdomain.com`. If running a development version of the server on OSX you can also use your Bonjour name i.e.
@@ -60,7 +70,7 @@ Press / once JanusVR has started.  JanusVR will list all the servers you are try
 
 * I entered the wrong details in for my key after executing './generate_key'.
  
-'./generate_key' will generate 2 files based on your input: *server-key.pem* and *server-cert.pem*.  Just delete these and execute './generate_key' again.
+'./generate_key' will generate 3 files based on your input: *cert/server-key.pem*, *cert/server-cert.pem*, *cert/cabundle.pem*.  Just delete these and execute './generate_key' again.
 
 * I have a general problem and need some troubleshooting info about the server application.
 
