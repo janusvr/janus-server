@@ -117,8 +117,6 @@ Server.prototype.startWebServer = function() {
     this.ws.listen(config.webServer);
     log.info('Webserver started on port: ' + config.webServer);
     console.log('Start Date/Time: ' + Date());
-    console.log('See server.log for activity information');
-
 };
 
 // ## action on client connection ##
