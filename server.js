@@ -81,6 +81,7 @@ Server.prototype.start = function() {
                 process.exit(1);
             }
 
+            console.log('SSL Server listening on port: ' + config.ssl.port);
             log.info('SSL Server listening on port: ' + config.ssl.port);
 
         });
@@ -116,8 +117,6 @@ Server.prototype.startWebServer = function() {
     this.ws.listen(config.webServer);
     log.info('Webserver started on port: ' + config.webServer);
     console.log('Start Date/Time: ' + Date());
-    console.log('See server.log for activity information');
-
 };
 
 // ## action on client connection ##

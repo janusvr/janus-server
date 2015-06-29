@@ -1,11 +1,11 @@
 {
   "name": "janus_server",
   "version": "0.0.2",
-  "description": "Janus Prescenc and chat server",
+  "description": "JanusVR presence and chat server",
   "main": "server.js",
   "repository": {
   "type": "git",
-  "url": "https://github.com/lisa-lionheart/janus-server.git"
+  "url": "https://github.com/janusvr/janus-server.git"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,6 +19,7 @@
     "npmlog": "^0.1.1",
     "optimist": "^0.6.1",
     "simplesets": "^1.2.0",
-    "mysql": "^2.5.4"
+    "mysql": "^2.5.4",
+    "split-ca": "^1.0.0"
   }
 }
