@@ -1,7 +1,7 @@
 {
   "name": "janus_server",
   "version": "0.0.2",
-  "description": "Janus Presence and chat server",
+  "description": "JanusVR presence and chat server",
   "main": "server.js",
   "repository": {
   "type": "git",
