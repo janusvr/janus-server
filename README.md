@@ -59,7 +59,11 @@ Running the Server
 should also work here) and where `5566` is the port that the server is running on as defined in `config.js`. If you are
 on OSX and are running the JanusVR client inside a virtual machine (i.e.
 [VMware Fusion](http://www.vmware.com/products/fusion)) you will need to use the network IP of your computer to connect
-as `localhost` may not work from within the virtual machine.  
+as `localhost` may not work from within the virtual machine.
+
+Contributing
+------------
+We have a contributors guide in the CONTRIBUTORS.md file found in this directory.
 
 Troubleshooting
 ------------------
