@@ -18,7 +18,7 @@ Some things that will increase the chance that your pull request is accepted:
 * Write testing instructions in your pull request (if necessary).
 * Read and follow this [GitHub Guide](https://guides.github.com/activities/contributing-to-open-source/).
 
-The JanusVR Presence Server uses [Semantic Verisoning 2.0.0](http://semver.org/).
+The JanusVR Presence Server uses [Semantic Versioning 2.0.0](http://semver.org/).
 
 
 # Code Of Conduct
