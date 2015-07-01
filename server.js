@@ -59,7 +59,7 @@ Server.prototype.start = function() {
     console.log('Startup date/time: ' + Date());
 
     this.server = net.createServer(this.onConnect.bind(this));
-    this.server.listen(config.port, function(err){
+    this.server.listen(config.port, "::", function(err){
 
         if(err) {
             log.error('Socket Server error listening on port: ' + config.port);
@@ -74,7 +74,7 @@ Server.prototype.start = function() {
     if(config.ssl) {
 
         this.ssl = tls.createServer(config.ssl.options, this.onConnect.bind(this));
-        this.ssl.listen(config.ssl.port, function(err){
+        this.ssl.listen(config.ssl.port, "::", function(err){
 
             if(err) {
                 log.error('SSL Server error listening on port: ' + config.ssl.port);
@@ -114,7 +114,7 @@ Server.prototype.startWebServer = function() {
 
     this.ws.use(router);
 
-    this.ws.listen(config.webServer);
+    this.ws.listen(config.webServer, "::");
     log.info('Webserver started on port: ' + config.webServer);
     console.log('Start Date/Time: ' + Date());
 };
