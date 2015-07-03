@@ -1,8 +1,6 @@
 var args = require('optimist').argv;
 var byline = require('byline');
 var config = require(args.config || '../config.js');
-var mysql = require('mysql');
-
 
 function Session(server, socket) {
 
