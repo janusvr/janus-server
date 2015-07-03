@@ -13,8 +13,8 @@ Plugins.prototype.intervalLoad = function() {
     var plugins = config.intervalPlugins;
 
     for(var p in plugins) {
-        var filename = '../plugins/' + plugins[p].plugin + '.js';
-        var plugin = require(filename);
+        var file = plugins[p].plugin;
+        var plugin = require(file);
         var interval = new plugin(this._server);
 
         this._intervals[p] = setInterval(function() { interval.call(this._server); }, (plugins[p].interval * 1000)); 
@@ -47,8 +47,7 @@ Plugins.prototype.call = function(name, socket, command) {
 }
 
 Plugins.prototype.load = function(name, file) {
-    var filename = '../plugins/' + file + '.js';
-    this._plugins[name][file] = require(filename);
+    this._plugins[name][file] = require(file);
 }
 
 module.exports = Plugins;

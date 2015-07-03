@@ -35,7 +35,7 @@ module.exports = {
     /* Controls how many results a request for 'users_online' receives. */
     maxUserResults: 100, 
 
-    /* MySQL database connection info for mysql-auth and mysql-userlist */
+    /* MySQL database connection info for janus-mysql-auth and janus-mysql-userlist */
     MySQL_Hostname: 'localhost',
     MySQL_Database: 'janusvr',
     MySQL_Username: 'janusvr',
@@ -50,16 +50,16 @@ module.exports = {
     */
     authMode: "optional",
 
-    /* Plugins must be store in ./plugins to be loaded. */
+    /* Plugins must be installed from npm, or manually created in node_module/ to be loaded. */
     /* methodPlugins are called while parsing messages */
     methodPlugins: {  
         logon: { 
-            plugins: [ "mysql-auth" ]
+            plugins: [ "janus-mysql-auth" ]
         },
     },
 
     /* intervalPlugins are called in intervals specified in seconds. */
     intervalPlugins: [
-        { plugin: "mysql-userlist", interval: 5 }
+        { plugin: "janus-mysql-userlist", interval: 5 }
     ],
 };
