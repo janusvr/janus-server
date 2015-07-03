@@ -26,23 +26,30 @@ Copy and paste the examples below to see how it works
 
 You need to do this before anything else.
 
-There are 3 Server Modes in this release and the way you login is affected by the Server Mode that has been set.
+Defined in config.js - authMode
 
-* Server Mode 1: Free for all, anybody can log on with any user ID as long as nobody online is using that ID
-* Server Mode 2: Registered and not registered, anybody can log on with any user ID.  However, they will need to provide a matching password if the user ID has been registered with the current server
-* Server Mode 3: Registered only.  You can only login with a registered ID and you must provide the correct matching password to login.
+Has three possible options (defaults to 'optional'):
 
-The current release defaults to **Server Mode 2**.  The Server Mode is configured in the config.js file, but **Server Mode 2** is the only implemented mode in this release.
+        'none'     - Will not attempt to authenticate users, 
+
+                     anyone can connect with any unused userId.
+
+        'optional' - Anyone can connect, but if userId has been registered
+
+                     a password must be provided.
+
+        'required' - Only users with userids and passwords are allowed to connect.
 
 Client -> Server Message Example:
 
-In Server Mode 2, you can login without a password if the userId you are using has not been registered.  However, you will need to provide a password if your userId HAS been registered.
-
 This is an example of a message to logon with if the userId "LL" has not been registered:
 
-> {"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457"}}
+```json
+{"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457"}}
+```
 
 Client -> Server Message Example
+
 ```json
 {"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457"}}
 ```
@@ -55,23 +62,29 @@ Real example from JanusVR 40.3
 
 This is an example of a message to logon with if the userId "LL" HAS been registered and therefore requires a password (recommend that this is not used until security tightened up in release):
 
-> {"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457","password":"MyPassword"}}
+```json
+{"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457","password":"MyPassword"}}
+```
 
-roomId = the room you are starting in and you will be subscribed to that room's events.  
 version = the client version
+
 roomId = MD5 hash of the room's URL
+
 password = password associated with userId
 
 Server -> Client Response Example:
 
 If everything is OK and you logged in then you will receive: 
 
-> {"method":"okay"}
+```json
+{"method":"okay"}
+```
 
 If no roomId was found in the logon request:
 
-> {"method":"error", "data":{"message":"Missing roomId in data packet"}}
-
+```json
+{"method":"error", "data":{"message":"Missing roomId in data packet"}}
+```
 
 If no userId was found in the logon request:
 
@@ -79,23 +92,17 @@ If no userId was found in the logon request:
 {"method":"okay"} if everything was okay or a {"method":"error", "data":{"message": "Some error string"}}
 ```
 
-> {"method":"error", "data":{"message": "Missing userId in data packet"}}
+```json
+{"method":"error", "data":{"message": "Missing userId in data packet"}}
+```
 
 If the userId is already in use:
 
-> {"method":"error", "data":{"message": "User name is already in use"}}
+```json
+{"method":"error", "data":{"message": "User name is already in use"}}
+```
 
-If the username or password you have provided is wrong:
-
-> POTENTIAL BUG FOR THIS CASE AT THE MOMENT
-
-If you call any other methods before calling logon successfully:
-
-> POTENTIAL BUG FOR THIS CASE AT THE MOMENT
-
-TODO: Add authentication - Mode 1 and 3 have not been implemented.  Mode 2 should probably be tightened up - password is currently in the clear - would recommend some kind of security if this is going to be used in live environment...
 TODO: Reject incompatable clients  
-TODO: Oculushut note - some potential bugs: Looks like "Missing or wrong password" will be shown if you forget to login before calling other methods - probably better to send back "Please login before calling other methods".  Looks like "passwordrequest" is sent back to the client if you fail password authentication - probably better to send back "Missing or wrong password" message.  Looks like you will not be able to login even if your username is free even in Server Mode 2.  Probably best only send "passwordrequest" if there was no password in payload.  Need to check all of these once installed...
 
 ----------------------------
 #### 1.2 "enter_room" Method
@@ -228,16 +235,33 @@ Will receive the following if everything is OK.
 Will receive: {"method":"okay"}
 
 --------------------------------
-#### 1.8 "getusersonline" Method
+#### 1.8 "users_online" Method
 --------------------------------
 
-Request how many users are connected to the server:
+Get list of connected users.
 
-> {"method":"getusersonline"}
+Defined in config.js: config.maxUserResults = 100.
 
-Will receive the following if everything is OK.
+{“method”: “users_online”}
 
-Will receive: {"data":2, method":"getusersonline"}
+    List all users online up to config.maxUserResults.
+
+{“method”: “users_online”, “data”: {“maxResults”: 50}}
+
+    List all users online up to ‘maxResults’  or config.maxUserResults, whichever is smaller.
+
+{“method”: “users_online”, “data”: {“roomId”: “xyz”}}
+
+    List all users in ‘roomId’ up to config.maxUserResults.
+
+{“method”: “users_online”, “data”: {“maxResults”: 50, “roomId”: “xyz”}}
+
+    List all users in ‘roomId’ up to ‘maxResults’  or config.maxUserResults, whichever is smaller.
+
+Reply:
+
+{“method”: “users_online”, “data”: {“results”: 50, “roomId”: “xyz”, “users”: {“Arthur Dent”, “Data”, “Lore”}}
+
 
 ======================================
 ### 2. Server -> Client Notifications:

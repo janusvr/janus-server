@@ -25,9 +25,7 @@ function Session(server, socket) {
 
     socket.on('close', function() {
         // let's remove the userId from the online list
-        if (config.online_users === 1) {
-            self.remove_online_user(self.id);
-        }
+        delete self._server._userList[self.id];
 
         if ( self.currentRoom ) {
             self.currentRoom.emit('user_disconnected', { userId:self.id });
@@ -52,7 +50,7 @@ Session.prototype.send = function(method, data) {
 
 Session.prototype.clientError = function(message) {
     log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
-    if (this.id != '') { this.remove_online_user(this.id);}
+    if (this.id != '') { delete this._server._userList[this.id];}
     this.send('error', {message:message});
 };
 
@@ -64,11 +62,7 @@ Session.validMethods = [
     'move', 
     'chat', 
     'portal', 
-    'usersonline', 
-    'getusersonline', 
-    'usersinroom', 
-    'getusersinroom',
-    'passwordrequest'
+    'users_online',
 ];
 
     Session.prototype.parseMessage = function(data) {
@@ -91,7 +85,7 @@ Session.validMethods = [
         }
 
         if(payload.method !== 'logon' && !this._authed ) {
-            this.clientError('Missing or wrong password');
+            this.clientError('You must call "logon" before sending any other commands.');
             return;
         }
 
@@ -109,11 +103,6 @@ Session.validMethods = [
 // ## User Logon ##
 Session.prototype.logon = function(data) {
 
-    var userInfo = this._server.getUserInfo(data.userId);
-
-    //log.info("Debug:");
-    //log.info(data);
-
     if(data.userId === undefined || data.userId === '') {
         this.clientError('Missing userId in data packet');
         return;
@@ -129,62 +118,19 @@ Session.prototype.logon = function(data) {
         return;
     }
 
-    if ( data.userId !== undefined) {
+    this._server._plugins.call("logon", this, data);
 
-        if ( userInfo == 0 && config.ServerMode != 2 ) {
-
-            this._authed = true;
-            this.id = data.userId;
-        }
-
-        else {
-            var storedUserPass = userInfo[1];
-            var transmittedUserPass = data.password;
-
-            if ( transmittedUserPass !== "" ) {
-                if ( transmittedUserPass === storedUserPass ) {
-                    this._authed = true;
-                    this.id = data.userId;
-                    log.info(data.userId + " authenticated.");
-                }
-                else {
-                    log.info("Failed password authentication by username: " + userInfo[0]);
-                    this.send('passwordrequest');
-                }
-            }
-        }
+    this.id = data.userId;
+    this._authed = true;
+    
+    this._server._userList[data.userId] = {
+        roomId: data.roomId
     }
-
-    if ( this._authed == true ) {
 
         log.info('User: ' + this.id + ' signed on');
         this.currentRoom = this._server.getRoom(data.roomId);
         this.subscribe(data);
-        if ( config.online_users === 1 ) {
-            //log.info("config users\n");
-            this.add_online_user( this.id );
-        }
-    }
 };
-
-
-Session.prototype.add_online_user = function( userID ) {
-    //log.info("add_online_users\n");
-    var dbcon = mysql.createConnection({
-        database : config.MySQL_Database,
-        host     : config.MySQL_Hostname,
-        user     : config.MySQL_Username,
-        password : config.MySQL_Password,
-    });
-
-    dbcon.connect();
-
-    var post = {userid: userID};
-    dbcon.query('INSERT INTO online_users SET ?', post, function(err, result) {
-    });
-
-    dbcon.end();
-}
 
 // ## user enter room ##
 Session.prototype.enter_room = function(data) {
@@ -203,6 +149,8 @@ Session.prototype.enter_room = function(data) {
             newRoomId: data.roomId
         });
     }
+
+    this._server._userList[this.id].roomId = data.roomId;
 
     this.currentRoom = this._server.getRoom(data.roomId);
     this.currentRoom.emit('user_enter', { 
@@ -290,30 +238,30 @@ Session.prototype.portal = function(portal) {
     this.send('okay');
 };
 
-Session.prototype.getusersonline = function(data) {
-    var userCount = this._server.usersonline();
-    this.send('usersonline', userCount);
-};
+Session.prototype.users_online = function(data) {
+    var maxResults = config.maxUserResults;
+    var count = 0;
+    var results = Array();
 
-Session.prototype.getusersinroom = function(data) {
-    var usersInRoom = this._server.usersinroom();
-    this.send('usersinroom', usersInRoom);
-};
+    if(data.maxResults !== undefined && data.maxResults < maxResults) maxResults = data.maxResults;
 
-Session.prototype.remove_online_user = function(userID) {
-    var dbcon = mysql.createConnection({
-        database : config.MySQL_Database,
-        host     : config.MySQL_Hostname,
-        user     : config.MySQL_Username,
-        password : config.MySQL_Password,
-    });
+    if(data.roomId === undefined) {
+        for(k in this._server._userList) {
+            results.push(k);
+            count++;
+            if(count >= maxResults) break;
+        }
+    }
+    else {
+        for(k in this._server._userList) {
+            if(this._server._userList[k].roomId == data.roomId) {
+                results.push([k]);
+                count++;
+                if(count >= maxResults) break;
+            }
+        }
+    }
 
-    dbcon.connect();
-
-    var post = {userid: userID};
-    dbcon.query('DELETE FROM online_users WHERE ?', post, function(err, result) {
-    });
-
-    dbcon.end();
-};
-
+    json = { "results": count, "roomId": data.roomId, "users": results };
+    this.send('users_online', json);
+}
