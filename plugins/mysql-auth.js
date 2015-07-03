@@ -61,6 +61,7 @@ Plugin.prototype.call = function(name, session, command) {
         case 'required':
             if(command.password === undefined) {
                 session.clientError('Password is required, none given.');
+                session._socket.destroy();
                 return;
             }
 
