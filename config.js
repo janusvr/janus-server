@@ -1,4 +1,3 @@
-
 var fs = require('fs');
 var splitca = require('split-ca');
 
@@ -33,26 +32,34 @@ module.exports = {
         }
     },
 
-    /* MySQL database connection info for user authentication */
+    /* Controls how many results a request for 'users_online' receives. */
+    maxUserResults: 100, 
+
+    /* MySQL database connection info for janus-mysql-auth and janus-mysql-userlist */
     MySQL_Hostname: 'localhost',
     MySQL_Database: 'janusvr',
     MySQL_Username: 'janusvr',
     MySQL_Password: 'janusvr',
 
-    /* Update user authentication information interval in minutes */
-    UserInfo_updateInterval: 5,
-
-    /*
-    server mode 1: Free for all, anybody can log on with any userId
-    server mode 2: Registered userId's will trigger a password request
-    server mode 3: Only registered userId's are allowed to connect
+    /* Authentication mode:
+        'none'     - Will not attempt to authenticate users, 
+                     anyone can connect with any unused userId.
+        'optional' - Anyone can connect, but if userId has been registered
+                     a password must be provided.
+        'required' - Only users with userids and passwords are allowed to connect.
     */
-    server_mode: 2,
+    authMode: "optional",
 
-    /* wether or not to log connection stats */
-    access_stats: 1,
+    /* Plugins must be installed from npm, or manually created in node_module/ to be loaded. */
+    /* methodPlugins are called while parsing messages */
+    methodPlugins: {  
+        logon: { 
+            plugins: [ "janus-mysql-auth" ]
+        },
+    },
 
-    /* wether or not to show who's online or now */
-    online_users: 1,
-
+    /* intervalPlugins are called in intervals specified in seconds. */
+    intervalPlugins: [
+        { plugin: "janus-mysql-userlist", interval: 5 }
+    ],
 };

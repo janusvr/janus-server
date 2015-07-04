@@ -19,7 +19,8 @@
     "npmlog": "^0.1.1",
     "optimist": "^0.6.1",
     "simplesets": "^1.2.0",
-    "mysql": "^2.5.4",
-    "split-ca": "^1.0.0"
+    "split-ca": "^1.0.0",
+    "janus-mysql-userlist": "^0.0.1",
+    "janus-mysql-auth": "^0.0.1"
   }
 }

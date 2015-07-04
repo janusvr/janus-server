@@ -3,7 +3,6 @@ var args = require('optimist').argv;//Noted that this is deprecated.  TODO: repl
 var onFinished = require('finished');
 var fs = require('fs');
 var config = require(args.config || '../config.js');
-var mysql = require('mysql');
 var rootDirectory = __dirname.substr(0,__dirname.lastIndexOf('/')+1);
 
 function callingFile(index, err) {
@@ -44,20 +43,6 @@ if(args.debug) {
         default:
             npmlog.level = 'info';
     }
-
-	var dbcon = mysql.createConnection({
-		database : config.MySQL_Database,
-		host     : config.MySQL_Hostname,
-		user     : config.MySQL_Username,
-		password : config.MySQL_Password,
-	});
-
-	dbcon.connect(function(err) {
-		// connected! (unless `err` is set)
-	});
-	dbcon.query('DELETE FROM online_users WHERE 1', function(err, results) {
-	});
-	dbcon.end();
 }
 
 function ts() {
