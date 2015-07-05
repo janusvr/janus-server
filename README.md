@@ -54,7 +54,7 @@ Troubleshooting
 
 > I cannot see other people when using JanusVR and I know others have the same server configured.
 
-Press `/` once JanusVR has started. JanusVR will list all the servers you are trying to connect to or ARE connected to. You should see your server in this list. If your server is red then it means that JanusVR cannot connect to it. Check firewall settings on the server to make sure the port `5566` is open and able to receive traffic. Check the `server.log` file on the server to see if there are any errors.
+Press `/` once JanusVR has started. JanusVR will list all the servers you are trying to connect to or ARE connected to. You should see your server in this list. If your server is red then it means that JanusVR cannot connect to it. Check firewall settings on the server to make sure that port `5566` and `5567` (for SSL) are open and able to receive traffic. Check the `server.log` file on the server to see if there are any errors.
 
 > I entered the wrong details in for my key after executing `./generate_key`.
 
