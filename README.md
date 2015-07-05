@@ -38,7 +38,7 @@ If you have a valid SSL certificate:
 
 1. `cd` to the root of the repository where `server.js` is located.
 1. Run the following command to start the server: `node server.js`. If you want this to run continually, you may want to look into using `forever` or `pm2` which are node modules built specifically for running other node server applications.
-1. Launch the JanusVR client with paramters to connect yo your server.
+1. Launch the JanusVR client with paramters to connect to your server.
  * **Windows** Create a shortcut to JanusVR and add the following arguments after the path to the JanusVR executable
     * `-server my.server.com -port 5566` where `my.server.com` is the IP address of your computer (`127.0.0.1` or `localhost` should also work here) and where `5566` is the port that the server is running on as defined in `config.js`.
  * **OSX** You can run the client from the command line by navigating to `janusvr.app/Contents/MacOS/` and running
