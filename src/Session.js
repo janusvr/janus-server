@@ -87,6 +87,8 @@ Session.validMethods = [
             return;
         }
 
+        if(payload.data === undefined) payload.data = {};
+        payload.data._session = this;
         Session.prototype[payload.method].call(this,payload.data);
     };
 

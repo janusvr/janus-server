@@ -51,11 +51,16 @@ module.exports = {
     authMode: "optional",
 
     /* Plugins must be installed from npm, or manually created in node_module/ to be loaded. */
-    /* methodPlugins are called while parsing messages */
-    methodPlugins: {  
+    /* hookPlugins are called while parsing messages */
+    hookPlugins: {  
         logon: { 
             plugins: [ "janus-mysql-auth" ]
-        },
+        }
+    },
+
+    /* methodPlugins add new commands to the server */
+    methodPlugins: {
+        ping: { plugin: "janus-method-ping" }
     },
 
     /* intervalPlugins are called in intervals specified in seconds. */
