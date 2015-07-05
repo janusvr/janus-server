@@ -18,7 +18,8 @@ Plugin.prototype.call = function(data) {
 
 ```
 
-'data' will contain a reference to the current session and allow you to communicate with the client.
+'data' will contain a reference to the current session and allow you to communicate with the client,
+along with the data from the client command.
 
 To load the plugin, add it to 'config.js':
 
