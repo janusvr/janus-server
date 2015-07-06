@@ -22,6 +22,6 @@
     "split-ca": "^1.0.0",
     "janus-mysql-userlist": "^0.0.2",
     "janus-mysql-auth": "^0.0.1",
-    "janus-method-ping": "^0.0.2"
+    "janus-method-ping": "^0.0.3"
   }
 }
