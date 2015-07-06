@@ -13,13 +13,22 @@ function Plugin() {
 }
 
 Plugin.prototype.call = function(data) {
-    data._session.send("okay");
+    var user = data._userList[data._userId];
+
+    user.send("okay");
 }
 
 ```
 
-'data' will contain a reference to the current session and allow you to communicate with the client,
-along with the data from the client command.
+'data' will have the following additional attributes:
+
+* _userId - The userId of the calling client.
+
+* _userList - The global user list, each user has these attributes:
+
+    * roomId - The id of the room the client is in.
+
+    * send() - A function to send data to the user's client.
 
 To load the plugin, add it to 'config.js':
 
