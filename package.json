@@ -20,7 +20,8 @@
     "optimist": "^0.6.1",
     "simplesets": "^1.2.0",
     "split-ca": "^1.0.0",
-    "janus-mysql-userlist": "^0.0.1",
-    "janus-mysql-auth": "^0.0.1"
+    "janus-mysql-userlist": "^0.0.2",
+    "janus-mysql-auth": "^0.0.1",
+    "janus-method-ping": "^0.0.3"
   }
 }

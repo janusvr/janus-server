@@ -48,7 +48,6 @@ Session.prototype.send = function(method, data) {
 
 Session.prototype.clientError = function(message) {
     log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
-    if (this.id != '') { delete this._server._userList[this.id];}
     this.send('error', {message:message});
 };
 
@@ -87,6 +86,9 @@ Session.validMethods = [
             return;
         }
 
+        if(payload.data === undefined) payload.data = {};
+        payload.data._userId = this.id;
+        payload.data._userList = this._server._userList;
         Session.prototype[payload.method].call(this,payload.data);
     };
 
@@ -121,8 +123,10 @@ Session.prototype.logon = function(data) {
     this.id = data.userId;
     this._authed = true;
     
+    var self = this;
     this._server._userList[data.userId] = {
-        roomId: data.roomId
+        roomId: data.roomId,
+        send: function(method, data) { self.send(method, data); }
     }
 
         log.info('User: ' + this.id + ' signed on');

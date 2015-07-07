@@ -1,12 +1,15 @@
 var args = require('optimist').argv;
 var config = require(args.config || '../config.js');
+var Session = require('./Session');
 
 function Plugins(server) {
     this._plugins = [];
     this._intervals = [];
+    this._methodPlugins = [];
     this._server = server;
 
     this.intervalLoad();
+    this.methodLoad();
 }
 
 Plugins.prototype.intervalLoad = function() {
@@ -21,11 +24,22 @@ Plugins.prototype.intervalLoad = function() {
     }
 }
 
-Plugins.prototype.call = function(name, socket, command) {
-  var method = config.methodPlugins[name];
+Plugins.prototype.methodLoad = function() {
+    var plugins = config.methodPlugins;
 
-  for(var k in method.plugins) {
-    var p = method.plugins[k];
+    for(var method in plugins) {
+        var file = plugins[method].plugin;
+        var plugin = require(file); 
+        Session.validMethods.push(method);
+        Session.prototype[method] = plugin.call;
+    }
+}
+
+Plugins.prototype.call = function(name, socket, command) {
+  var hook = config.hookPlugins[name];
+
+  for(var k in hook.plugins) {
+    var p = hook.plugins[k];
 
     if(p === undefined) {
         err = "Unable to load plugin " + p;
