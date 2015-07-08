@@ -67,6 +67,7 @@ Session.validMethods = [
         //log.info('C->S: ' + data);
 
         var payload;
+        var self = this;
 
         try {
             payload = JSON.parse(data);
@@ -87,8 +88,10 @@ Session.validMethods = [
         }
 
         if(payload.data === undefined) payload.data = {};
+        if(typeof(payload.data)!= "object") payload.data = { "data": payload.data };
         payload.data._userId = this.id;
         payload.data._userList = this._server._userList;
+        payload.data._roomEmit = function(method, data) { self.currentRoom.emit(method, data) };
         Session.prototype[payload.method].call(this,payload.data);
     };
 
@@ -152,6 +155,7 @@ Session.prototype.enter_room = function(data) {
         });
     }
 
+    this._server._userList[this.id].oldRoomId = oldRoomId;
     this._server._userList[this.id].roomId = data.roomId;
 
     this.currentRoom = this._server.getRoom(data.roomId);

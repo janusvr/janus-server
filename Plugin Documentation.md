@@ -1,6 +1,6 @@
 # Plugins
 
-A plugin must implement ```Plugin()``` and ```Plugin.prototype.call()``.
+A plugin must implement ```Plugin()``` and ```Plugin.prototype.call()```.
 
 ```Plugin()``` will be called when the plugin is first loaded, do any initialization here.
 
@@ -48,6 +48,8 @@ To load the plugin, add it to 'config.js':
     * roomId - The id of the room the client is in.
 
     * send() - A function to send data to the user's client.
+
+* _roomEmit() - A function to send data to everyone in the user's current room.
 
 Now, when a client sends
 
