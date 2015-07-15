@@ -134,7 +134,7 @@ Session.prototype.logon = function(data) {
 
         log.info('User: ' + this.id + ' signed on');
         this.currentRoom = this._server.getRoom(data.roomId);
-        this.subscribe(data);
+        setTimeout(function(){ self.subscribe(data); }, 500);
 };
 
 // ## user enter room ##
