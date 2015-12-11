@@ -221,7 +221,7 @@ Session.prototype.unsubscribe = function(data) {
     var i = this._rooms.indexOf(room);
     if(i !== -1) {
         room.removeSession(this);
-        this._rooms.slice(i,1);
+        this._rooms.splice(i,1);
     }
 
     this.send('okay');
