@@ -13,7 +13,6 @@
   "author": "Lisa Croxford, Michael/HAZARDU5,  Jerad Bitner, na/source83, oculushut, Tim Schwartz, JamesHagerman",
   "license": "MIT",
   "dependencies": {
-    "config": "*",
     "byline": "^4.1.1",
     "express": "^4.6.1",
     "finished": "^1.2.2",
