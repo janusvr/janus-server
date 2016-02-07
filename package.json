@@ -1,16 +1,16 @@
 {
   "name": "janus_server",
-  "version": "0.0.2",
+  "version": "0.1.1",
   "description": "JanusVR presence and chat server",
   "main": "server.js",
   "repository": {
-  "type": "git",
-  "url": "https://github.com/janusvr/janus-server.git"
+    "type": "git",
+    "url": "https://github.com/janusvr/janus-server.git"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Lisa Croxford, Michael/HAZARDU5,  Jerad Bitner, na/source83, oculushut, Tim Schwartz, JamesHagerman",
   "license": "MIT",
   "dependencies": {
     "byline": "^4.1.1",
