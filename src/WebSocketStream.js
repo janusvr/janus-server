@@ -7,7 +7,7 @@ function WebSocketStream(driver) {
   this.readable = this.writable = true;
   
   this._driver.on('message', function(message) { 
-    this.emit('data', message.data + "\r\n");
+    this.emit('data', message.data);
   }.bind(this));
 
 
