@@ -16,12 +16,14 @@
     "byline": "^4.1.1",
     "express": "^4.6.1",
     "finished": "^1.2.2",
+    "http-request-parser": "^1.2.0",
+    "janus-method-ping": "^0.0.3",
+    "janus-mysql-auth": "^0.0.2",
+    "janus-mysql-userlist": "^0.0.4",
     "npmlog": "^0.1.1",
     "optimist": "^0.6.1",
     "simplesets": "^1.2.0",
     "split-ca": "^1.0.0",
-    "janus-mysql-userlist": "^0.0.4",
-    "janus-mysql-auth": "^0.0.2",
-    "janus-method-ping": "^0.0.3"
+    "websocket-driver": "^0.6.4"
   }
 }
