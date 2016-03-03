@@ -27,7 +27,7 @@ function callingFile(index, err) {
 if(args.debug) {
     npmlog.enableColor();
 } else {
-	npmlog.stream = fs.createWriteStream('server.log', {'flags':'a'});
+	npmlog.stream = fs.createWriteStream(config.logFilePath, {'flags':'a'});
 	npmlog.stream.write('------------- Restart -----------------');
 
     switch (config.logLevel){
