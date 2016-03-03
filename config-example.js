@@ -21,6 +21,9 @@ module.exports = {
      * debug, warn, fatal, error, http could be 
      * implemented as well, but not done yet*/
     logLevel: "info",
+
+    // Path to log output file
+    logFilePath: "./server.log",
     
     /* SSL configurations */
     ssl: {
