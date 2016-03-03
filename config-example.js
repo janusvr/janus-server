@@ -6,7 +6,7 @@ module.exports = {
     port: 5566,
 
     /* Web UI */
-    webServer: 8080,
+    webServer: 8081,
 
     /*Log Levels - default is "info"
      *  
@@ -20,7 +20,7 @@ module.exports = {
      *
      * debug, warn, fatal, error, http could be 
      * implemented as well, but not done yet*/
-    logLevel: "info",
+    logLevel: "debug",
 
     // Path to log output file
     logFilePath: "./server.log",
@@ -36,13 +36,17 @@ module.exports = {
     },
 
     /* Controls how many results a request for 'users_online' receives. */
-    maxUserResults: 100, 
+    maxUserResults: 100,
+    
+    // If you do not want 
+    Userlist: false,
 
     /* MySQL database connection info for janus-mysql-auth and janus-mysql-userlist */
     MySQL_Hostname: 'localhost',
     MySQL_Database: 'janusvr',
     MySQL_Username: 'janusvr',
     MySQL_Password: 'janusvr',
+
 
     /* Authentication mode:
         'none'     - Will not attempt to authenticate users, 
@@ -51,7 +55,7 @@ module.exports = {
                      a password must be provided.
         'required' - Only users with userids and passwords are allowed to connect.
     */
-    authMode: "optional",
+    authMode: "none",
 
     /* Plugins must be installed from npm, or manually created in node_module/ to be loaded. */
     /* hookPlugins are called while parsing messages */
