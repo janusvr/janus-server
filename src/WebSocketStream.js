@@ -21,5 +21,5 @@ util.inherits(WebSocketStream, Stream);
 module.exports = WebSocketStream;
 
 WebSocketStream.prototype.write = function(message) {
-  this._driver.binary(message);
+  this._driver.text(message);
 }
