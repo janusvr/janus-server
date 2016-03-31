@@ -86,8 +86,9 @@ Server.prototype.start = function() {
 
         });
     }
-
-    this.startWebServer();
+    if(config.startWebServer) {
+        this.startWebServer();
+    }
 };
 
 
@@ -114,7 +115,7 @@ Server.prototype.startWebServer = function() {
 
     this.ws.use(router);
 
-    this.ws.listen(config.webServer, "::");
+    this.ws.listen(config.webServerPort, "::");
     log.info('Webserver started on port: ' + config.webServer);
     console.log('Start Date/Time: ' + Date());
 };
