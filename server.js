@@ -158,8 +158,12 @@ Server.prototype.onConnect = function(socket) {
       if (websocket.isWebSocket(driver)) {
           log.info('Websocket connection:', addr);
           driver.start();
-         
-          var s = new Session(self, new WebSocketStream(driver));
+          var wss = new WebSocketStream(driver);
+          wss.on('error', function(err) {
+              log.error(addr);
+              log.error('WebsocketStream error:' , err);
+          }); 
+          var s = new Session(self, wss);
           self._sessions.add(s)
       
           driver.on('close', function() {
