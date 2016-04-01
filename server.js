@@ -18,7 +18,6 @@ var Session = require('./src/Session');
 var Room = require('./src/Room');
 var Plugins = require('./src/Plugins');
 
-
 function Server() {
 
     this._sessions = new sets.Set();
@@ -129,13 +128,17 @@ Server.prototype.onConnect = function(socket) {
     
     // setup for websocket
     var driver = websocket.server({ 'protocols': 'binary' });
-
+    socket.on('error', function(err){
+        log.error(addr);
+        log.error('Socket error: ', err);
+    });
     socket.once('data', function(data) {
         // try to parse the packet as http
         var request = parser.parseRequest(data.toString());
+ 
         if (Object.keys(request.headers).length === 0)
         {
-            // there are no http headers, this should be a raw tcp connection
+            // there are no http headers, this is a raw tcp connection
 
             var s = new Session(self, socket);
             self._sessions.add(s);
@@ -145,11 +148,7 @@ Server.prototype.onConnect = function(socket) {
                 self._sessions.remove(s);
             });
 
-            socket.on('error', function(err){
-                log.error(addr);
-                log.error('Socket error: ', err);
-            });
-            // emit the first message so the session
+           // emit the first message so the session gets it
             socket.emit('data', data);
         }
       });
@@ -158,18 +157,14 @@ Server.prototype.onConnect = function(socket) {
       if (websocket.isWebSocket(driver)) {
           log.info('Websocket connection:', addr);
           driver.start();
-          var wss = new WebSocketStream(driver);
-          wss.on('error', function(err) {
-              log.error(addr);
-              log.error('WebsocketStream error:' , err);
-          }); 
-          var s = new Session(self, wss);
+
+          var s = new Session(self, new WebSocketStream(driver));
           self._sessions.add(s)
       
           driver.on('close', function() {
               log.info('Client disconnected: ', addr);
               self._sessions.remove(s);
-          });
+         });
 
           driver.on('error', function(err) {
               log.error(addr);
