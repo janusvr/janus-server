@@ -1,9 +1,10 @@
 var Stream = require('stream'),
     util = require('util');
 
-function WebSocketStream(driver) {
+function WebSocketStream(driver, socket) {
   Stream.call(this);
   this._driver = driver;
+  this._socket = socket;
   this.readable = this.writable = true;
   
   this._driver.on('message', function(message) { 

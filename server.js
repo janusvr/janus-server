@@ -158,7 +158,7 @@ Server.prototype.onConnect = function(socket) {
           log.info('Websocket connection:', addr);
           driver.start();
 
-          var s = new Session(self, new WebSocketStream(driver));
+          var s = new Session(self, new WebSocketStream(driver, socket));
           self._sessions.add(s)
       
           driver.on('close', function() {
