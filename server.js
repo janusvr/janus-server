@@ -7,12 +7,16 @@ var express = require('express');
 var fs = require('fs');
 var sets = require('simplesets');
 
+// websocket requires
+var websocket = require('websocket-driver');
+var parser = require('http-string-parser');
+var WebSocketStream = require('./src/WebSocketStream');
+
 global.log = require('./src/Logging');
 
 var Session = require('./src/Session');
 var Room = require('./src/Room');
 var Plugins = require('./src/Plugins');
-
 
 function Server() {
 
@@ -121,19 +125,54 @@ Server.prototype.onConnect = function(socket) {
     var self = this;
     var addr = socket.remoteAddress;
     log.info('Client connected ' + addr);
-
-    var s = new Session(this, socket);
-    this._sessions.add(s);
-
-    socket.on('close', function() {
-        log.info('Client disconnected: ' + addr);
-        self._sessions.remove(s);
-    });
-
+    
+    // setup for websocket
+    var driver = websocket.server({ 'protocols': 'binary' });
     socket.on('error', function(err){
-	log.error(addr);
+        log.error(addr);
         log.error('Socket error: ', err);
     });
+    socket.once('data', function(data) {
+        // try to parse the packet as http
+        var request = parser.parseRequest(data.toString());
+ 
+        if (Object.keys(request.headers).length === 0)
+        {
+            // there are no http headers, this is a raw tcp connection
+
+            var s = new Session(self, socket);
+            self._sessions.add(s);
+        
+            socket.on('close', function() {
+                log.info('Client disconnected: ' + addr);
+                self._sessions.remove(s);
+            });
+
+           // emit the first message so the session gets it
+            socket.emit('data', data);
+        }
+      });
+
+    driver.on('connect', function() {
+      if (websocket.isWebSocket(driver)) {
+          log.info('Websocket connection:', addr);
+          driver.start();
+
+          var s = new Session(self, new WebSocketStream(driver, socket));
+          self._sessions.add(s)
+      
+          driver.on('close', function() {
+              log.info('Client disconnected: ', addr);
+              self._sessions.remove(s);
+         });
+
+          driver.on('error', function(err) {
+              log.error(addr);
+              log.error('Websocket error: ', err);
+          });
+        }
+    });
+    socket.pipe(driver.io).pipe(socket);
 };
 
 (new Server()).start();
