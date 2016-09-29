@@ -154,10 +154,11 @@ Session.prototype.enter_room = function(data) {
             newRoomId: data.roomId
         });
     }
-
+    
     this._server._userList[this.id].oldRoomId = oldRoomId;
     this._server._userList[this.id].roomId = data.roomId;
-
+    this._server._plugins.call("enter_room", this, data);
+    
     this.currentRoom = this._server.getRoom(data.roomId);
     this.currentRoom.emit('user_enter', { 
         userId: this.id, 
