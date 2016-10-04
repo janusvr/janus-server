@@ -24,6 +24,7 @@ function Session(server, socket) {
     socket.on('close', function() {
         // let's remove the userId from the online list
         delete self._server._userList[self.id];
+        delete self._server._partyList[self.id];
 
         if ( self.currentRoom ) {
             self.currentRoom.emit('user_disconnected', { userId:self.id });
@@ -60,6 +61,7 @@ Session.validMethods = [
     'chat', 
     'portal', 
     'users_online',
+    'get_partylist',
 ];
 
     Session.prototype.parseMessage = function(data) {
@@ -110,6 +112,11 @@ Session.prototype.logon = function(data) {
         this.clientError('Missing userId in data packet');
         return;
     }
+    
+    if (!data.userId.match('^[a-zA-Z0-9$]+')) {
+        this.clientError('userId must be alphanumeric');
+        return;
+    }
 
     if(data.roomId === undefined) {
         this.clientError('Missing roomId in data packet');
@@ -157,8 +164,18 @@ Session.prototype.enter_room = function(data) {
     
     this._server._userList[this.id].oldRoomId = oldRoomId;
     this._server._userList[this.id].roomId = data.roomId;
-    this._server._plugins.call("enter_room", this, data);
-    
+    if ((data.partyMode == true) || (data.partyMode == "true")) {
+        if (this._server._partyList[this.id] === undefined) {
+            this._server._partyList[this.id] = {};
+        }
+        this._server._partyList[this.id].roomId = data.roomId;
+        this._server._partyList[this.id].roomUrl = (data.roomUrl === undefined)?"":data.roomUrl;
+        this._server._partyList[this.id].roomName = (data.roomName === undefined)?"":data.roomName;
+        
+    } else {
+         delete this._server._partyList[this.id];       
+    }
+            
     this.currentRoom = this._server.getRoom(data.roomId);
     this.currentRoom.emit('user_enter', { 
         userId: this.id, 
@@ -271,4 +288,8 @@ Session.prototype.users_online = function(data) {
 
     json = { "results": count, "roomId": data.roomId, "users": results };
     this.send('users_online', json);
+}
+
+Session.prototype.get_partylist = function(data) {
+    this.send('get_partylist', this._server._partyList);
 }

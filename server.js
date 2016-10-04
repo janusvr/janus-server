@@ -23,6 +23,7 @@ function Server() {
     this._sessions = new sets.Set();
     this._rooms = {};
     this._userList = Array();
+    this._partyList = {};
     this._plugins = new Plugins(this);
 }
 
@@ -85,6 +86,7 @@ Server.prototype.start = function() {
 
         });
     }
+    
     if(config.startWebServer) {
         this.startWebServer();
     }
@@ -100,11 +102,18 @@ Server.prototype.startWebServer = function() {
 
 
     var router = express.Router();
+    
+    console.log('starting web server on port ' + config.webServerPort);
 
     router.get('/log', function(req,res){
         res.writeHead(200, {'Content-Type':'text/plain', 'Content-Length':-1, 'Transfer-Encoding': 'chunked'});
         var logFile = fs.createReadStream('server.log');
         logFile.pipe(res);
+    });
+
+    router.get('/get_partylist', function(req,res){
+        console.log("get_partylist: " + JSON.stringify(self._partyList));
+        res.json(self._partyList);
     });
 
     router.get('/', function(req,res){
@@ -115,7 +124,7 @@ Server.prototype.startWebServer = function() {
     this.ws.use(router);
 
     this.ws.listen(config.webServerPort, "::");
-    log.info('Webserver started on port: ' + config.webServer);
+    log.info('Webserver started on port: ' + config.webServerPort);
     console.log('Start Date/Time: ' + Date());
 };
 
