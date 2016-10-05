@@ -113,8 +113,8 @@ Session.prototype.logon = function(data) {
         return;
     }
     
-    if (!data.userId.match('^[a-zA-Z0-9$]+')) {
-        this.clientError('userId must be alphanumeric');
+    if (!data.userId.match('^[a-zA-Z0-9_]+$')) {
+        this.clientError('illegal character in user name, only use alphanumeric and underscore');
         return;
     }
 
@@ -169,7 +169,7 @@ Session.prototype.enter_room = function(data) {
             this._server._partyList[this.id] = {};
         }
         this._server._partyList[this.id].roomId = data.roomId;
-        this._server._partyList[this.id].roomUrl = (data.roomUrl === undefined)?"":data.roomUrl;
+        this._server._partyList[this.id].roomUrl = ((data.roomUrl === undefined)||(data.roomUrl.match('^https?://') == null))?"":data.roomUrl;
         this._server._partyList[this.id].roomName = (data.roomName === undefined)?"":data.roomName;
         
     } else {
