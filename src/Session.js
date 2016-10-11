@@ -132,6 +132,8 @@ Session.prototype.logon = function(data) {
 
     this.id = data.userId;
     this._authed = true;
+    this.client_version = 
+            (data.version === undefined)?"undefined":data.version;
     
     var self = this;
     this._server._userList[data.userId] = {
@@ -168,10 +170,12 @@ Session.prototype.enter_room = function(data) {
         if (this._server._partyList[this.id] === undefined) {
             this._server._partyList[this.id] = {};
         }
-        this._server._partyList[this.id].roomId = data.roomId;
-        this._server._partyList[this.id].roomUrl = ((data.roomUrl === undefined)||(data.roomUrl.match('^https?://') == null))?"":data.roomUrl;
-        this._server._partyList[this.id].roomName = (data.roomName === undefined)?"":data.roomName;
-        
+        if ((data.roomUrl !== undefined) && (data.roomUrl.match('^https?://'))){
+            this._server._partyList[this.id].roomId = data.roomId;
+            this._server._partyList[this.id].roomUrl = data.roomUrl;
+            this._server._partyList[this.id].roomName = (data.roomName === undefined) ? "" : data.roomName;
+            this._server._partyList[this.id].client_version = this.client_version;
+        }        
     } else {
          delete this._server._partyList[this.id];       
     }
