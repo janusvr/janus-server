@@ -18,9 +18,6 @@ var Session = require('./src/Session');
 var Room = require('./src/Room');
 var Plugins = require('./src/Plugins');
 
-global.disconnects = 0;
-global.driver_closes = 0;
-
 function Server() {
 
     this._sessions = new sets.Set();
