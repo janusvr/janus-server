@@ -3,6 +3,7 @@ var Stream = require('stream'),
 
 function WebSocketStream(driver, socket) {
   Stream.call(this);
+  this.destroyed = false;
   this._driver = driver;
   this._socket = socket;
   this.readable = this.writable = true;
@@ -21,6 +22,7 @@ function WebSocketStream(driver, socket) {
 
   this._driver.on('close', function() {
     this.emit('close');
+    this.destroyed = true;
   }.bind(this));
 }
 

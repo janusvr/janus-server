@@ -141,9 +141,12 @@ Session.prototype.logon = function(data) {
         send: function(method, data) { self.send(method, data); }
     }
 
-        log.info('User: ' + this.id + ' signed on');
-        this.currentRoom = this._server.getRoom(data.roomId);
-        setTimeout(function(){ self.subscribe(data); }, 500);
+    log.info('User: ' + this.id + ' signed on');
+    this.currentRoom = this._server.getRoom(data.roomId);
+    setTimeout(function(){ 
+        if (!self._socket.destroyed)
+            self.subscribe(data); 
+    }, 500);
 };
 
 // ## user enter room ##
