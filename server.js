@@ -18,6 +18,9 @@ var Session = require('./src/Session');
 var Room = require('./src/Room');
 var Plugins = require('./src/Plugins');
 
+global.disconnects = 0;
+global.driver_closes = 0;
+
 function Server() {
 
     this._sessions = new sets.Set();
@@ -133,6 +136,8 @@ Server.prototype.onConnect = function(socket) {
 
     var self = this;
     var addr = socket.remoteAddress;
+    var s;
+
     log.info('Client connected ' + addr);
     
     // setup for websocket
@@ -141,6 +146,11 @@ Server.prototype.onConnect = function(socket) {
         log.error(addr);
         log.error('Socket error: ', err);
     });
+    socket.on('close', function() {
+        log.info('Client disconnected: ' + addr);
+        if (s) self._sessions.remove(s);
+    });
+
     socket.once('data', function(data) {
         // try to parse the packet as http
         var request = parser.parseRequest(data.toString());
@@ -148,14 +158,8 @@ Server.prototype.onConnect = function(socket) {
         if (Object.keys(request.headers).length === 0)
         {
             // there are no http headers, this is a raw tcp connection
-
-            var s = new Session(self, socket);
+            s = new Session(self, socket);
             self._sessions.add(s);
-        
-            socket.on('close', function() {
-                log.info('Client disconnected: ' + addr);
-                self._sessions.remove(s);
-            });
 
            // emit the first message so the session gets it
             socket.emit('data', data);
@@ -167,14 +171,9 @@ Server.prototype.onConnect = function(socket) {
           log.info('Websocket connection:', addr);
           driver.start();
 
-          var s = new Session(self, new WebSocketStream(driver, socket));
+          s = new Session(self, new WebSocketStream(driver, socket));
           self._sessions.add(s)
       
-          driver.on('close', function() {
-              log.info('Client disconnected: ', addr);
-              self._sessions.remove(s);
-         });
-
           driver.on('error', function(err) {
               log.error(addr);
               log.error('Websocket error: ', err);
