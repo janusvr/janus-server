@@ -1,3 +1,5 @@
+/* global log */
+
 var args = require('optimist').argv;
 var config = require(args.config || './config.js');
 var net = require('net');
@@ -19,16 +21,65 @@ var Room = require('./src/Room');
 var Plugins = require('./src/Plugins');
 
 function Server() {
-
+    var d = new Date();
     this._sessions = new sets.Set();
     this._rooms = {};
     this._userList = Array();
     this._partyList = {};
     this._plugins = new Plugins(this);
+    this._lastSavedPopular = 0; // claim it has never been saved
+    this.HALFLIFE = 7 * 24 * 60 * 60 * 1000;// set the half life to 7 days
+    this.POPULARSAVEINTERVAL = 300000; // interval between sves of the popular rooms
+
+    try { // try loading saved popular rooms from previous sessions
+        this._popular = JSON.parse(fs.readFileSync('popular.json', 'utf8'));
+    } catch (e) {
+        this._popular = {}; // init to empty object if we can't
+        this.savePopular();
+        log.error("could not open popular.json, creating a new Object");
+    }
 }
 
-Server.prototype.getRoom = function(roomId) {
-    if(this._rooms[roomId] === undefined)  {
+// save popular rooms to a file
+Server.prototype.savePopular = function () {
+    var d = new Date();
+    var now = d.getTime();
+    var howLong = now - this._lastSavedPopular;
+    // check to see if we have recently saved out to file
+    if (howLong > this.POPULARSAVEINTERVAL) {
+        // normalize the weights
+        for (var roomUrl in this._popular) {
+            this._popular[roomUrl].weight *=
+                    Math.pow(2.0,
+                            (this._popular[roomUrl].lastEvaluated - now) / this.HALFLIFE);
+            this._popular[roomUrl].lastEvaluated = now;
+        }
+        try {
+            fs.writeFileSync("popular.json", JSON.stringify(this._popular), "utf8");
+        } catch (e) {
+            log.error("Could not write popular rooms to file");
+        }
+    }
+};
+
+Server.prototype.updatePopular = function (roomUrl) {
+    var d = new Date();
+    if (this._popular[roomUrl] === undefined) { // initialize new entry
+        this._popular[roomUrl] = {};
+        this._popular[roomUrl].weight = 0.0;
+        this._popular[roomUrl].lastseen = d.getTime();
+        this._popular[roomUrl].lastEvaluated = d.getTime();
+    }
+    this._popular[roomUrl].weight =
+            1.0 + this._popular[roomUrl].weight *
+            Math.pow(2.0,
+                    (this._popular[roomUrl].lastEvaluated - d.getTime()) / this.HALFLIFE);
+    this._popular[roomUrl].lastseen = d.getTime();
+    this._popular[roomUrl].lastEvaluated = d.getTime();
+};
+
+Server.prototype.getRoom = function (roomId) {
+    if (this._rooms[roomId] === undefined) {
         this._rooms[roomId] = new Room(roomId);
     }
 
@@ -36,11 +87,11 @@ Server.prototype.getRoom = function(roomId) {
 };
 
 // ## Check if username is in use ##
-Server.prototype.isNameFree = function(name) {
+Server.prototype.isNameFree = function (name) {
 
     var free = true;
-    this._sessions.each(function(s) {
-        if(s.id === name) {
+    this._sessions.each(function (s) {
+        if (s.id === name) {
             free = false;
         }
     });
@@ -48,7 +99,7 @@ Server.prototype.isNameFree = function(name) {
 };
 
 // ## Start Socket Server ##
-Server.prototype.start = function() {
+Server.prototype.start = function () {
     console.log('========================');
     console.log('Janus VR Presence Server');
     console.log('========================');
@@ -59,9 +110,9 @@ Server.prototype.start = function() {
     console.log('Startup date/time: ' + Date());
 
     this.server = net.createServer(this.onConnect.bind(this));
-    this.server.listen(config.port, "::", function(err){
+    this.server.listen(config.port, "::", function (err) {
 
-        if(err) {
+        if (err) {
             log.error('Socket Server error listening on port: ' + config.port);
             process.exit(1);
         }
@@ -71,12 +122,12 @@ Server.prototype.start = function() {
 
     });
 
-    if(config.ssl) {
+    if (config.ssl) {
 
         this.ssl = tls.createServer(config.ssl.options, this.onConnect.bind(this));
-        this.ssl.listen(config.ssl.port, "::", function(err){
+        this.ssl.listen(config.ssl.port, "::", function (err) {
 
-            if(err) {
+            if (err) {
                 log.error('SSL Server error listening on port: ' + config.ssl.port);
                 process.exit(1);
             }
@@ -86,15 +137,15 @@ Server.prototype.start = function() {
 
         });
     }
-    
-    if(config.startWebServer) {
+
+    if (config.startWebServer) {
         this.startWebServer();
     }
 };
 
 
 // ## start web server ##
-Server.prototype.startWebServer = function() {
+Server.prototype.startWebServer = function () {
 
     var self = this;
 
@@ -102,21 +153,34 @@ Server.prototype.startWebServer = function() {
 
 
     var router = express.Router();
-    
-    console.log('starting web server on port ' + config.webServerPort);
 
-    router.get('/log', function(req,res){
-        res.writeHead(200, {'Content-Type':'text/plain', 'Content-Length':-1, 'Transfer-Encoding': 'chunked'});
+    console.log('starting web server on port ' + config.webServerPort);
+    
+    router.get('/getPopularRooms', function (req, res) {
+        // order the popular URLs by decreasing weight
+        var weights = [];
+        for (var roomUrl in self._popular) {
+            weights.push([roomUrl,self._popular[roomUrl].weight]);
+        }
+        weights.sort(function (a, b) { return a[1] < b[1] ? 1 : a[1] > b[1] ? -1 : 0 });
+        if (weights.length > 20) { // shorten the array f results to at most 20 results
+            weights.splice(20,weights.length - 20);
+        }
+        res.json(weights);
+    });
+
+    router.get('/log', function (req, res) {
+        res.writeHead(200, {'Content-Type': 'text/plain', 'Content-Length': -1, 'Transfer-Encoding': 'chunked'});
         var logFile = fs.createReadStream('server.log');
         logFile.pipe(res);
     });
 
-    router.get('/get_partylist', function(req,res){
-        console.log("get_partylist: " + JSON.stringify(self._partyList));
+    router.get('/get_partylist', function (req, res) {
+        //console.log("get_partylist: " + JSON.stringify(self._partyList));
         res.json(self._partyList);
     });
 
-    router.get('/', function(req,res){
+    router.get('/', function (req, res) {
         res.send(200, 'Nothing to see here ... yet');
     });
 
@@ -129,52 +193,53 @@ Server.prototype.startWebServer = function() {
 };
 
 // ## action on client connection ##
-Server.prototype.onConnect = function(socket) {
+Server.prototype.onConnect = function (socket) {
 
     var self = this;
     var addr = socket.remoteAddress;
     var s;
 
     log.info('Client connected ' + addr);
-    
+
     // setup for websocket
-    var driver = websocket.server({ 'protocols': 'binary' });
-    socket.on('error', function(err){
+    var driver = websocket.server({'protocols': 'binary'});
+    socket.on('error', function (err) {
         log.error(addr);
         log.error('Socket error: ', err);
     });
-    socket.on('close', function() {
+    socket.on('close', function () {
         log.info('Client disconnected: ' + addr);
-        if (s) self._sessions.remove(s);
+        if (s)
+            self._sessions.remove(s);
     });
 
-    socket.once('data', function(data) {
+    socket.once('data', function (data) {
         // try to parse the packet as http
         var request = parser.parseRequest(data.toString());
- 
+
         if (Object.keys(request.headers).length === 0)
         {
             // there are no http headers, this is a raw tcp connection
             s = new Session(self, socket);
             self._sessions.add(s);
 
-           // emit the first message so the session gets it
+            // emit the first message so the session gets it
             socket.emit('data', data);
         }
-      });
+    });
 
-    driver.on('connect', function() {
-      if (websocket.isWebSocket(driver)) {
-          log.info('Websocket connection:', addr);
-          driver.start();
+    driver.on('connect', function () {
+        if (websocket.isWebSocket(driver)) {
+            log.info('Websocket connection:', addr);
+            driver.start();
 
-          s = new Session(self, new WebSocketStream(driver, socket));
-          self._sessions.add(s)
-      
-          driver.on('error', function(err) {
-              log.error(addr);
-              log.error('Websocket error: ', err);
-          });
+            s = new Session(self, new WebSocketStream(driver, socket));
+            self._sessions.add(s)
+
+            driver.on('error', function (err) {
+                log.error(addr);
+                log.error('Websocket error: ', err);
+            });
         }
     });
     socket.pipe(driver.io).pipe(socket);

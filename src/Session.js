@@ -178,6 +178,7 @@ Session.prototype.enter_room = function(data) {
             this._server._partyList[this.id].roomUrl = data.roomUrl;
             this._server._partyList[this.id].roomName = (data.roomName === undefined) ? "" : data.roomName;
             this._server._partyList[this.id].client_version = this.client_version;
+            this._server.updatePopular(data.roomUrl);
         }        
     } else {
          delete this._server._partyList[this.id];       
