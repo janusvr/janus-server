@@ -77,7 +77,11 @@ module.exports = {
     hookPlugins: {  
         logon: { 
             plugins: [ "janus-mysql-auth" ]
+        },
+        enter_room: {
+            plugins: ["janus-mysql-popular"]
         }
+      
     },
 
     /* methodPlugins add new commands to the server */

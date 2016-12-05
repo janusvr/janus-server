@@ -151,7 +151,6 @@ Session.prototype.logon = function(data) {
 
 // ## user enter room ##
 Session.prototype.enter_room = function(data) {
-
     if(data.roomId  === undefined) {
         this.clientError('Missing roomId in data packet');
         return;
@@ -166,6 +165,7 @@ Session.prototype.enter_room = function(data) {
             newRoomId: data.roomId
         });
     }
+    this._server._plugins.call("enter_room", data);
     
     this._server._userList[this.id].oldRoomId = oldRoomId;
     this._server._userList[this.id].roomId = data.roomId;
