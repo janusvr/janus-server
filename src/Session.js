@@ -173,13 +173,6 @@ Session.prototype.enter_room = function(data) {
         if (this._server._partyList[this.id] === undefined) {
             this._server._partyList[this.id] = {};
         }
-        if ((data.roomUrl !== undefined) && (data.roomUrl.match('^https?://'))){
-            this._server._partyList[this.id].roomId = data.roomId;
-            this._server._partyList[this.id].roomUrl = data.roomUrl;
-            this._server._partyList[this.id].roomName = (data.roomName === undefined) ? "" : data.roomName;
-            this._server._partyList[this.id].client_version = this.client_version;
-            this._server.updatePopular(data.roomUrl);
-        }        
     } else {
          delete this._server._partyList[this.id];       
     }

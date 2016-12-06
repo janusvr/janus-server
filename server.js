@@ -1,13 +1,14 @@
 /* global log */
 
 var args = require('optimist').argv;
-var config = require(args.config || './config.js');
+global.config = require(args.config || './config.js');
 var net = require('net');
 var tls = require('tls');
 var events = require('events');
 var express = require('express');
 var fs = require('fs');
 var sets = require('simplesets');
+var mysql = require('mysql');
 
 // websocket requires
 var websocket = require('websocket-driver');
@@ -27,56 +28,8 @@ function Server() {
     this._userList = Array();
     this._partyList = {};
     this._plugins = new Plugins(this);
-    this._lastSavedPopular = 0; // claim it has never been saved
-    this.HALFLIFE = 7 * 24 * 60 * 60 * 1000;// set the half life to 7 days
-    this.POPULARSAVEINTERVAL = 300000; // interval between sves of the popular rooms
 
-    try { // try loading saved popular rooms from previous sessions
-        this._popular = JSON.parse(fs.readFileSync('popular.json', 'utf8'));
-    } catch (e) {
-        this._popular = {}; // init to empty object if we can't
-        this.savePopular();
-        log.error("could not open popular.json, creating a new Object");
-    }
 }
-
-// save popular rooms to a file
-Server.prototype.savePopular = function () {
-    var d = new Date();
-    var now = d.getTime();
-    var howLong = now - this._lastSavedPopular;
-    // check to see if we have recently saved out to file
-    if (howLong > this.POPULARSAVEINTERVAL) {
-        // normalize the weights
-        for (var roomUrl in this._popular) {
-            this._popular[roomUrl].weight *=
-                    Math.pow(2.0,
-                            (this._popular[roomUrl].lastEvaluated - now) / this.HALFLIFE);
-            this._popular[roomUrl].lastEvaluated = now;
-        }
-        try {
-            fs.writeFileSync("popular.json", JSON.stringify(this._popular), "utf8");
-        } catch (e) {
-            log.error("Could not write popular rooms to file");
-        }
-    }
-};
-
-Server.prototype.updatePopular = function (roomUrl) {
-    var d = new Date();
-    if (this._popular[roomUrl] === undefined) { // initialize new entry
-        this._popular[roomUrl] = {};
-        this._popular[roomUrl].weight = 0.0;
-        this._popular[roomUrl].lastseen = d.getTime();
-        this._popular[roomUrl].lastEvaluated = d.getTime();
-    }
-    this._popular[roomUrl].weight =
-            1.0 + this._popular[roomUrl].weight *
-            Math.pow(2.0,
-                    (this._popular[roomUrl].lastEvaluated - d.getTime()) / this.HALFLIFE);
-    this._popular[roomUrl].lastseen = d.getTime();
-    this._popular[roomUrl].lastEvaluated = d.getTime();
-};
 
 Server.prototype.getRoom = function (roomId) {
     if (this._rooms[roomId] === undefined) {
@@ -155,20 +108,30 @@ Server.prototype.startWebServer = function () {
     var router = express.Router();
 
     console.log('starting web server on port ' + config.webServerPort);
-    
-    router.get('/getPopularRooms', function (req, res) {
-        // order the popular URLs by decreasing weight
-        var weights = [];
-        for (var roomUrl in self._popular) {
-            weights.push([roomUrl,self._popular[roomUrl].weight]);
-        }
-        weights.sort(function (a, b) { return a[1] < b[1] ? 1 : a[1] > b[1] ? -1 : 0 });
-        if (weights.length > 20) { // shorten the array f results to at most 20 results
-            weights.splice(20,weights.length - 20);
-        }
-        res.json(weights);
-    });
+   
+    if (global.config.hookPlugins.hasOwnProperty('enter_room') &&
+        global.config.hookPlugins.enter_room.plugins.indexOf('janus-mysql-popular') > -1)
+    { 
+        this._conn = mysql.createPool({
+            host     : config.MySQL_Hostname,
+            user     : config.MySQL_Username,
+            password : config.MySQL_Password,
+            database : config.MySQL_Database
+        });
 
+        router.get('/getPopularRooms', function (req, res) {
+            var sql = "SELECT roomName, url as roomUrl, count, weight, UNIX_TIMESTAMP(lastSeen) as lastEntered FROM `popular` ORDER BY `weight` DESC LIMIT 20";
+            this._conn.query(sql, function(err, results) {
+                if (err) { 
+                    console.log(err);
+                    res.json({"success": false, "data": [{"error": "Error querying the DB"}]});
+                    return;
+                }
+                
+                res.json({"success": true, "data": results});
+            })
+        }.bind(this));
+    }
     router.get('/log', function (req, res) {
         res.writeHead(200, {'Content-Type': 'text/plain', 'Content-Length': -1, 'Transfer-Encoding': 'chunked'});
         var logFile = fs.createReadStream('server.log');

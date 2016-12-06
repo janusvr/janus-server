@@ -63,6 +63,11 @@ module.exports = {
         'required' - Only users with userids and passwords are allowed to connect.
     */
     authMode: "none",
+    
+    popularRooms: {
+      halfLife: 7 * 24 * 60 * 60 * 1000, // set halflife to 7 days
+      updateInterval: 3000             // interval between weight updates on the popular rooms  
+    },
 
     /*
     ************************************************************************
