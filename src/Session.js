@@ -172,7 +172,14 @@ Session.prototype.enter_room = function(data) {
     if ((data.partyMode == true) || (data.partyMode == "true")) {
         if (this._server._partyList[this.id] === undefined) {
             this._server._partyList[this.id] = {};
+       
         }
+        if ((data.roomUrl !== undefined) && (data.roomUrl.match('^https?://'))){   
+            this._server._partyList[this.id].roomId = data.roomId;    
+            this._server._partyList[this.id].roomUrl = data.roomUrl;    
+            this._server._partyList[this.id].roomName = (data.roomName === undefined) ? "" : data.roomName;   
+            this._server._partyList[this.id].client_version = this.client_version;    
+        }           
     } else {
          delete this._server._partyList[this.id];       
     }
