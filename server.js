@@ -124,11 +124,12 @@ Server.prototype.startWebServer = function () {
             var limit = parseInt(req.query.limit, 10) || 20,
                 offset = parseInt(req.query.offset, 10) || 0,
                 orderBy = req.query.orderBy || "weight",
-                desc = (req.query.desc && req.query.desc === "true") ? "DESC" : "";
+                desc = (req.query.desc && req.query.desc === "true") ? "DESC" : "",
+                contains = req.query.urlContains ? "%" + req.query.urlContains + "%" : "%";
             console.log('desc', desc);
-            var sql = "SELECT roomName, url as roomUrl, count, weight, UNIX_TIMESTAMP(lastSeen) as lastEntered FROM `popular` ORDER BY ?? "+desc+" LIMIT ?,?";
+            var sql = "SELECT roomName, url as roomUrl, count, weight, UNIX_TIMESTAMP(lastSeen) as lastEntered FROM `popular` WHERE url LIKE ? ORDER BY ?? "+desc+" LIMIT ?,?";
             console.log(sql);
-            this._conn.query(sql, [orderBy, offset, limit], function(err, results) {
+            this._conn.query(sql, [contains, orderBy, offset, limit], function(err, results) {
                 if (err) { 
                     console.log(err);
                     res.json({"success": false, "data": [{"error": "Error querying the DB"}]});
