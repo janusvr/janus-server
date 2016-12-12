@@ -27,5 +27,10 @@
     "simplesets": "^1.2.0",
     "split-ca": "^1.0.0",
     "websocket-driver": "^0.6.4"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2",
+    "superagent": "^2.2.0"
   }
 }
