@@ -1,12 +1,13 @@
 var request = require('superagent'),
     assert = require('chai').assert,
     net = require('net'),
+    WebSocketClient = require('websocket').client,
     Server = require('../server.js');
 
 
-describe('server', function() {
+describe('server', () => {
     var app;
-    before(function(done) {
+    before( (done) => {
         //process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0; // turn off ssl cert validation
         app = new Server();
         app.start(() => { 
@@ -14,7 +15,7 @@ describe('server', function() {
         });
     });
 
-    after(function(done) {
+    after( (done) => {
         //process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 1;
         app.close( () => {
             app = null;
@@ -22,7 +23,7 @@ describe('server', function() {
         });
     });
 
-    it('should return 200 when /getPopularRooms is requested', function(done) {
+    it('should return 200 when /getPopularRooms is requested', (done) => {
         request
         .get('http://localhost:8080/getPopularRooms')
         .end(function(err, res) {
@@ -32,7 +33,7 @@ describe('server', function() {
         });
     });
 
-    it('should accept tcp connections', function(done) {
+    it('should accept tcp connections', (done) => {
         var client = net.createConnection({port: global.config.port}, function(socket) {
             client.end();
         });
@@ -40,6 +41,18 @@ describe('server', function() {
             throw new Error(err);
         });
         client.on('end', () => {
+            done();
+        });
+    });
+
+    it('should accept websocket connections', (done) => {
+        var client = new WebSocketClient();
+        client.connect("ws://localhost:"+global.config.port);
+        client.on('connectFailed', (err) => {
+            throw new Error(err);
+        });  
+        client.on('connect', (conn) => {
+            conn.close();
             done();
         });
     });
