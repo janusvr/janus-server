@@ -8,7 +8,7 @@
     "url": "https://github.com/janusvr/janus-server.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/mocha/bin/mocha test/"
   },
   "author": "Lisa Croxford, Michael/HAZARDU5,  Jerad Bitner, na/source83, oculushut, Tim Schwartz, JamesHagerman",
   "license": "MIT",
@@ -27,5 +27,10 @@
     "simplesets": "^1.2.0",
     "split-ca": "^1.0.0",
     "websocket-driver": "^0.6.4"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2",
+    "superagent": "^2.2.0"
   }
 }

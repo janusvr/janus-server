@@ -52,7 +52,7 @@ Server.prototype.isNameFree = function (name) {
 };
 
 // ## Start Socket Server ##
-Server.prototype.start = function () {
+Server.prototype.start = function (callback) {
     console.log('========================');
     console.log('Janus VR Presence Server');
     console.log('========================');
@@ -94,6 +94,8 @@ Server.prototype.start = function () {
     if (config.startWebServer) {
         this.startWebServer();
     }
+    if (callback && typeof(callback) == "function") 
+        callback();
 };
 
 
@@ -120,15 +122,12 @@ Server.prototype.startWebServer = function () {
         });
 
         router.get('/getPopularRooms', function (req, res) {
-            console.log('parmas', req.query);
             var limit = parseInt(req.query.limit, 10) || 20,
                 offset = parseInt(req.query.offset, 10) || 0,
                 orderBy = req.query.orderBy || "weight",
                 desc = (req.query.desc && req.query.desc === "true") ? "DESC" : "",
                 contains = req.query.urlContains ? "%" + req.query.urlContains + "%" : "%";
-            console.log('desc', desc);
             var sql = "SELECT roomName, url as roomUrl, count, weight, UNIX_TIMESTAMP(lastSeen) as lastEntered FROM `popular` WHERE url LIKE ? ORDER BY ?? "+desc+" LIMIT ?,?";
-            console.log(sql);
             this._conn.query(sql, [contains, orderBy, offset, limit], function(err, results) {
                 if (err) { 
                     console.log(err);
@@ -158,10 +157,23 @@ Server.prototype.startWebServer = function () {
 
     this.ws.use(router);
 
-    this.ws.listen(config.webServerPort, "::");
+    this.webserver = this.ws.listen(config.webServerPort, "::");
     log.info('Webserver started on port: ' + config.webServerPort);
     console.log('Start Date/Time: ' + Date());
 };
+
+Server.prototype.close = function(cb) {
+    this.server.close( (err) => {
+        if (config.startWebServer && this.webserver) {
+            this.webserver.close( (err) => {
+                return cb(err);
+            });
+        }
+        else {
+            return cb(err);
+        }
+    });
+}
 
 // ## action on client connection ##
 Server.prototype.onConnect = function (socket) {
@@ -215,5 +227,10 @@ Server.prototype.onConnect = function (socket) {
     });
     socket.pipe(driver.io).pipe(socket);
 };
+if (require.main === module) {
+    (new Server()).start();
+}
+else {
+  module.exports = Server;
+}
 
-(new Server()).start();
