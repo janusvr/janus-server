@@ -52,7 +52,7 @@ Server.prototype.isNameFree = function (name) {
 };
 
 // ## Start Socket Server ##
-Server.prototype.start = function () {
+Server.prototype.start = function (callback) {
     console.log('========================');
     console.log('Janus VR Presence Server');
     console.log('========================');
@@ -94,6 +94,8 @@ Server.prototype.start = function () {
     if (config.startWebServer) {
         this.startWebServer();
     }
+    if (callback && typeof(callback) == "function") 
+        callback();
 };
 
 
@@ -158,10 +160,23 @@ Server.prototype.startWebServer = function () {
 
     this.ws.use(router);
 
-    this.ws.listen(config.webServerPort, "::");
+    this.webserver = this.ws.listen(config.webServerPort, "::");
     log.info('Webserver started on port: ' + config.webServerPort);
     console.log('Start Date/Time: ' + Date());
 };
+
+Server.prototype.close = function(cb) {
+    this.server.close( (err) => {
+        if (config.startWebServer && this.webserver) {
+            this.webserver.close( (err) => {
+                return cb(err);
+            });
+        }
+        else {
+            return cb(err);
+        }
+    });
+}
 
 // ## action on client connection ##
 Server.prototype.onConnect = function (socket) {
@@ -215,5 +230,10 @@ Server.prototype.onConnect = function (socket) {
     });
     socket.pipe(driver.io).pipe(socket);
 };
+if (require.main === module) {
+    (new Server()).start();
+}
+else {
+  module.exports = Server;
+}
 
-(new Server()).start();
