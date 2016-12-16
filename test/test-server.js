@@ -54,59 +54,35 @@ describe('server', () => {
         });
     });
 
-    describe("tcp connections", (done) => {
-        var client, 
-            clientOptions = {
-                transport: 'tcp',
-                host: 'localhost', 
-                port: global.config.port, 
-                room: 'http://testroom', 
-                userId: 'tcptester'
-            };
-        before( (done) => { 
-            client = new JanusClient(clientOptions);
-            done();
-        });
-
-        after( (done) => {
-            if (!client.destroyed) {
-                client.on('end', done); 
-                client.disconnect();
-            }
-            else {
-                done();
-            }
-        });
-        it('should return ok on logon method', (done) => { checkLogon(client, done) });
-    });
-    
-    describe("websocket connections", (done) => {
-        var client, 
-            clientOptions = {
-                transport: 'websocket',
-                host: 'localhost', 
-                port: global.config.port, 
-                room: 'http://testroom', 
-                userId: 'wstester'
-            }
-        before( (done) => { 
-            client = new JanusClient(clientOptions);
-            done();
-        });
-
-        after( (done) => {
-            if (!client.destroyed) {
-                client.on('end', done); 
-                client.disconnect();
-            }
-            else {
-                done();
-            }
-        });
-        it('should return ok on logon method', (done) => { checkLogon(client, done) });
-
-    });
+    describe("tcp connections", runClientTests.bind(this, "tcp")); 
+    describe("websocket connections", runClientTests.bind(this, "websocket"));
 });
+
+function runClientTests (transport, done) {
+    var client, 
+        clientOptions = {
+            transport: transport,
+            host: 'localhost', 
+            port: global.config.port, 
+            room: 'http://testroom', 
+            userId: 'tcptester'
+        };
+    before( (done) => { 
+        client = new JanusClient(clientOptions);
+        done();
+    });
+
+    after( (done) => {
+        if (!client.destroyed) {
+            client.on('end', done); 
+            client.disconnect();
+        }
+        else {
+            done();
+        }
+    });
+    it('should return ok on logon method', (done) => { checkLogon(client, done) });
+}
 
 function checkLogon (client, done) {
     client.on('connected', () => {
