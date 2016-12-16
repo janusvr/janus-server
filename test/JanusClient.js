@@ -18,6 +18,7 @@ function JanusClient(opts) {
     this._port = opts.port,
     this._userId = opts.userId,
     this._roomId = crypto.createHash("md5").update(opts.room).digest("hex");
+    this._roomUrl = opts.room;
     this.destroyed = false;
     this._conn;
     if (this._transport === "tcp") {
@@ -58,6 +59,21 @@ JanusClient.prototype.sendLogon = function() {
             'roomId': this._roomId
         }
     };
+    this.send(msgData);
+}
+
+JanusClient.prototype.sendSubscribe = function(room, partyMode) {
+    var partyMode = partyMode || false;
+    var roomId = crypto.createHash("md5").update(room).digest("hex");
+    this._roomUrl = room;
+    this._roomId = roomId;
+    var msgData = {
+        'method': 'subscribe',
+        'data': {
+                'roomId': roomId,
+                'partyMode': partyMode
+        }
+    }
     this.send(msgData);
 }
 
