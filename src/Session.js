@@ -44,7 +44,7 @@ module.exports = Session;
 Session.prototype.send = function(method, data) {
     var packet = JSON.stringify({method:method,data:data});
     this._socket.write(packet+'\r\n');
-    //log.info('S->C: ' + packet);
+    log.info('S->C: ' + packet);
 };
 
 Session.prototype.clientError = function(message) {
@@ -66,7 +66,7 @@ Session.validMethods = [
 
     Session.prototype.parseMessage = function(data) {
 
-        //log.info('C->S: ' + data);
+        log.info('C->S: ' + data);
 
         var payload;
         var self = this;
@@ -249,7 +249,9 @@ Session.prototype.unsubscribe = function(data) {
         room.removeSession(this);
         this._rooms.splice(i,1);
     }
-
+    if (room.isEmpty()) {
+        delete this._server.rooms[data.roomId]; 
+    }
     this.send('okay');
 };
 
