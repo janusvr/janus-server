@@ -8,7 +8,7 @@ module.exports = {
     /* Web UI */
     startWebServer: true,
     webServerPort: 8080,
-
+    webServerPortHttps: 8081,
     /*Log Levels - default is "info"
      *  
      *  This setting controls all logging into
