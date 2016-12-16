@@ -2,7 +2,8 @@ var request = require('superagent'),
     assert = require('chai').assert,
     net = require('net'),
     WebSocketClient = require('websocket').client,
-    Server = require('../server.js');
+    Server = require('../server.js'),
+    JanusClient = require('./JanusClient');
 
 
 describe('server', () => {
@@ -10,9 +11,7 @@ describe('server', () => {
     before( (done) => {
         //process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0; // turn off ssl cert validation
         app = new Server();
-        app.start(() => { 
-            done();
-        });
+        app.start(done);
     });
 
     after( (done) => {
@@ -40,9 +39,7 @@ describe('server', () => {
         client.on('error', (err) => {
             throw new Error(err);
         });
-        client.on('end', () => {
-            done();
-        });
+        client.on('end', done);
     });
 
     it('should accept websocket connections', (done) => {
@@ -57,5 +54,69 @@ describe('server', () => {
         });
     });
 
+    describe("tcp connections", (done) => {
+        var client, 
+            clientOptions = {
+                transport: 'tcp',
+                host: 'localhost', 
+                port: global.config.port, 
+                room: 'http://testroom', 
+                userId: 'tcptester'
+            };
+        before( (done) => { 
+            client = new JanusClient(clientOptions);
+            done();
+        });
+
+        after( (done) => {
+            if (!client.destroyed) {
+                client.on('end', done); 
+                client.disconnect();
+            }
+            else {
+                done();
+            }
+        });
+        it('should return ok on logon method', (done) => { checkLogon(client, done) });
+    });
+    
+    describe("websocket connections", (done) => {
+        var client, 
+            clientOptions = {
+                transport: 'websocket',
+                host: 'localhost', 
+                port: global.config.port, 
+                room: 'http://testroom', 
+                userId: 'wstester'
+            }
+        before( (done) => { 
+            client = new JanusClient(clientOptions);
+            done();
+        });
+
+        after( (done) => {
+            if (!client.destroyed) {
+                client.on('end', done); 
+                client.disconnect();
+            }
+            else {
+                done();
+            }
+        });
+        it('should return ok on logon method', (done) => { checkLogon(client, done) });
+
+    });
 });
+
+function checkLogon (client, done) {
+    client.on('connected', () => {
+        client.once('data', (data) => {
+            assert.equal(data.method, "okay");
+            client.disconnect();
+            done();
+        });
+        client.sendLogon();
+    });
+    client.connect();
+}
 
