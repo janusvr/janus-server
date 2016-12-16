@@ -77,6 +77,17 @@ JanusClient.prototype.sendSubscribe = function(room, partyMode) {
     this.send(msgData);
 }
 
+JanusClient.prototype.unsubscribe = function() {
+    var msgData = {
+        'method': 'unsubscribe',
+        'data': {
+                'roomId': this._roomId
+        }
+    }
+    this.send(msgData);
+    
+}
+
 module.exports = JanusClient;
 
 function TcpClient (host, port, userId, room) {

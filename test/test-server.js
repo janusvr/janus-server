@@ -84,6 +84,7 @@ function runClientTests (transport, done) {
     });
     it('logon should return {method: "okay"}', (done) =>  { checkLogon(client, done) });
     it('subscribe should return {method: "okay"}', (done) => { checkSubscribe(client, done) });
+    it('unsubscribe should return {method: "okay"}', (done) => { checkUnsubscribe(client, done) });
 }
 
 function checkLogon (client, done) {
@@ -104,5 +105,13 @@ function checkSubscribe (client, done) {
         done();
     });
     client.sendSubscribe(client._roomUrl);
+}
+
+function checkUnsubscribe (client, done) {
+    client.once('data', (data) => {
+        assert.equal(data.method, "okay");
+        done();
+    });
+    client.unsubscribe();
 }
 
