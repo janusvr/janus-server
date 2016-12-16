@@ -19,6 +19,10 @@ Room.prototype.removeSession = function(session) {
     this._sessions.remove(session);
 };
 
+Room.prototype.isEmpty = function() {
+    return this._sessions.size() === 0;
+}
+
 Room.prototype.emit = function(event,data) {
 
     this._sessions.each(function(s) {

@@ -243,13 +243,14 @@ Session.prototype.unsubscribe = function(data) {
     }
 
     var room = this._server.getRoom(data.roomId);
-
     var i = this._rooms.indexOf(room);
     if(i !== -1) {
         room.removeSession(this);
         this._rooms.splice(i,1);
     }
-
+    if (room.isEmpty()) {
+        delete this._server._rooms[data.roomId]; 
+    }
     this.send('okay');
 };
 
