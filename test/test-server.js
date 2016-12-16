@@ -9,7 +9,6 @@ var request = require('superagent'),
 describe('server', () => {
     var app;
     before( (done) => {
-        //process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0; // turn off ssl cert validation
         app = new Server();
         app.start(done);
     });
@@ -47,13 +46,33 @@ describe('server', () => {
     describe("tcp connections", runClientTests.bind(this, "tcp")); 
     describe("websocket connections", runClientTests.bind(this, "websocket"));
     describe('apis', (done) => {
-        it('should return 200 when /getPopularRooms is requested', (done) => {
-            request
-            .get('http://localhost:8080/getPopularRooms')
-            .end(function(err, res) {
-                if (err) return done(err);
-                assert.equal(res.status, 200);
+        describe('popular rooms', (done) => {
+            before( (done) => {
+                process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0; // turn off ssl cert validation
+                done();
+            });
+
+            after( (done) => {
+                process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 1; // turn off ssl cert validation
                 done(); 
+            });
+            it('should return 200 when /getPopularRooms is requested over http', (done) => {
+                request
+                .get('http://localhost:8080/getPopularRooms')
+                .end(function(err, res) {
+                    if (err) return done(err);
+                    assert.equal(res.status, 200);
+                    done(); 
+                });
+            });
+            it('should return 200 when /getPopularRooms is requested over https', (done) => {
+                request
+                .get('https://localhost:8081/getPopularRooms')
+                .end( (err, res) => {
+                    if (err) return done(err);
+                    assert.equal(res.status, 200);
+                    done();
+                });
             });
         });
     });

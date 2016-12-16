@@ -101,7 +101,8 @@ Server.prototype.start = function (callback) {
 
 // ## start web server ##
 Server.prototype.startWebServer = function () {
-
+    var http = require('http'),
+        https = require('https');
     var self = this;
 
     this.ws = express();
@@ -157,8 +158,14 @@ Server.prototype.startWebServer = function () {
 
     this.ws.use(router);
 
-    this.webserver = this.ws.listen(config.webServerPort, "::");
-    log.info('Webserver started on port: ' + config.webServerPort);
+    //this.webserver = this.ws.listen(config.webServerPort, "::");
+
+    this.webserver = http.createServer(this.ws)
+    this.webserver.listen(config.webServerPort, "::");
+    log.info('Webserver (http) started on port: ' + config.webServerPort);
+    this.webserverHttps = https.createServer(config.ssl.options, this.ws).listen(config.webServerPortHttps);
+    console.log('webserver', typeof(this.webserverHttps));
+    log.info('Webserver (https) started on port: ' + config.webServerPortHttps);
     console.log('Start Date/Time: ' + Date());
 };
 
