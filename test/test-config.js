@@ -71,8 +71,9 @@ module.exports = {
     */
 
     popularRooms: {
-      halfLife: 7 * 24 * 60 * 60 * 1000, // set halflife to 7 days
-      updateInterval: 3000             // interval between weight updates on the popular rooms  
+        halfLife: 7 * 24 * 60 * 60 * 1000, // set halflife to 7 days
+        updateInterval: 3000,             // interval between weight updates on the popular rooms  
+        masterToken: "testtoken"
     },
 
     /* Plugins must be installed from npm, or manually created in node_module/ to be loaded. */
