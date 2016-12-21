@@ -128,7 +128,7 @@ Server.prototype.startWebServer = function () {
                 orderBy = req.query.orderBy || "weight",
                 desc = (req.query.desc && req.query.desc === "true") ? "DESC" : "",
                 contains = req.query.urlContains ? "%" + req.query.urlContains + "%" : "%";
-            var sql = "SELECT roomName, url as roomUrl, count, weight, UNIX_TIMESTAMP(lastSeen) as lastEntered FROM `popular` WHERE url LIKE ? ORDER BY ?? "+desc+" LIMIT ?,?";
+            var sql = "SELECT roomName, url as roomUrl, count, weight, UNIX_TIMESTAMP(lastSeen) as lastEntered, thumbnail FROM `popular` WHERE url LIKE ? ORDER BY ?? "+desc+" LIMIT ?,?";
             this._conn.query(sql, [contains, orderBy, offset, limit], function(err, results) {
                 if (err) { 
                     console.log(err);
