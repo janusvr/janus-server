@@ -74,6 +74,23 @@ describe('server', () => {
                     done();
                 });
             });
+            it('should return 200 when POSTing to /addThumb', (done) => {
+                var data = {
+                    roomUrl: "http://testroom",
+                    thumbnail: "http://thumbnail",
+                    token: "testtoken"
+                }
+                request
+                .post('http://localhost:8080/addThumb')
+                .set('Content-Type', 'application/json')
+                .send(JSON.stringify(data))
+                .end((err, res) => {
+                    if (err) console.log(err);
+                    var response = res.body;
+                    assert.equal(response.success, true);
+                    done();
+                });
+            });
         });
     });
 });

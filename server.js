@@ -9,7 +9,7 @@ var express = require('express');
 var fs = require('fs');
 var sets = require('simplesets');
 var mysql = require('mysql');
-
+var bodyParser = require('body-parser');
 // websocket requires
 var websocket = require('websocket-driver');
 var parser = require('http-string-parser');
@@ -107,7 +107,7 @@ Server.prototype.startWebServer = function () {
 
     this.ws = express();
 
-
+    this.ws.use(bodyParser.json());
     var router = express.Router();
 
     console.log('starting web server on port ' + config.webServerPort);
@@ -138,6 +138,25 @@ Server.prototype.startWebServer = function () {
                 
                 res.json({"success": true, "data": results});
             })
+        }.bind(this));
+
+        router.post('/addThumb', function (req, res) {
+            data = req.body;
+            if (!data['token'] || 
+                data['token'] !== global.config.popularRooms.masterToken)
+                return res.json({"success": false, "data": [{"error": "Invalid token"}]});
+            if (!data['roomUrl'] || !data['thumbnail']) 
+                return res.json({"success": false, "data": [{"error": "Must POST roomUrl and thumbnail parameters"}]});
+            var roomUrl = data['roomUrl'],
+                thumbnail = data['thumbnail'];
+            var sql = "UPDATE popular SET thumbnail = ? WHERE url = ?";
+            this._conn.query(sql, [thumbnail, roomUrl], (err, results) => {
+                if (err) {
+                    console.log(err);
+                    return res.json({"success": false, "data": [{"error": "Error querying the DB"}]});
+                }
+                return res.json({"success": true});
+            });
         }.bind(this));
     }
     router.get('/log', function (req, res) {

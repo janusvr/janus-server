@@ -5,7 +5,6 @@ services:
     - mysql
 before_install:
     - mysql -e 'CREATE DATABASE janusvr;'
-    - mysql janusvr < test/db/testdb.sql
     - cp test/test-config.js ./config.js
     - ./generate_key_ni
 
