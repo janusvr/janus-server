@@ -103,7 +103,9 @@ function runClientTests (transport, done) {
     });
     it('logon should return {method: "okay"}', (done) =>  { checkLogon(client, done) });
     it('subscribe should return {method: "okay"}', (done) => { checkSubscribe(client, done) });
+    it('enter_room should not crash', (done) => { checkEnterRoom(client, done) });
     it('unsubscribe should return {method: "okay"}', (done) => { checkUnsubscribe(client, done) });
+
 }
 
 function checkLogon (client, done) {
@@ -124,6 +126,10 @@ function checkSubscribe (client, done) {
         done();
     });
     client.sendSubscribe(client._roomUrl);
+}
+
+function checkEnterRoom (client, done) {
+    client.enter_room(client._roomUrl, true, () => {done();});
 }
 
 function checkUnsubscribe (client, done) {

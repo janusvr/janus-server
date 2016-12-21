@@ -62,6 +62,25 @@ JanusClient.prototype.sendLogon = function() {
     this.send(msgData);
 }
 
+JanusClient.prototype.enter_room = function(room, partyMode, cb) {
+    var partyMode = partyMode || false;
+    var roomId = crypto.createHash("md5").update(room).digest("hex");
+    var msgData = {
+        'method': 'enter_room',
+        'data': {
+                'roomId': roomId,
+                'partyMode': partyMode
+        }
+    }
+    if (partyMode) {
+        msgData['data']['roomUrl'] = room;
+    }
+    this.send(msgData);
+    if (cb && typeof(cb) === "function")
+        cb();
+
+}
+
 JanusClient.prototype.sendSubscribe = function(room, partyMode) {
     var partyMode = partyMode || false;
     var roomId = crypto.createHash("md5").update(room).digest("hex");
