@@ -25,7 +25,7 @@ function Session(server, socket) {
         // let's remove the userId from the online list
         delete self._server._userList[self.id];
         delete self._server._partyList[self.id];
-
+        self._server.savePartyList();
         if ( self.currentRoom ) {
             self.currentRoom.emit('user_disconnected', { userId:self.id });
         }
@@ -183,7 +183,7 @@ Session.prototype.enter_room = function(data) {
     } else {
          delete this._server._partyList[this.id];       
     }
-            
+    this._server.savePartyList();    
     this.currentRoom = this._server.getRoom(data.roomId);
     this.currentRoom.emit('user_enter', { 
         userId: this.id, 

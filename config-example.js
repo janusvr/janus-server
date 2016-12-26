@@ -5,10 +5,6 @@ module.exports = {
     /* Socket port to listen on */
     port: 5566,
 
-    /* Web UI */
-    startWebServer: false,
-    webServerPort: 8080,
-    webServerPortHttps: 8081,
     /*Log Levels - default is "info"
      *  
      *  This setting controls all logging into
@@ -34,6 +30,17 @@ module.exports = {
             key: fs.readFileSync('cert/server-key.pem'),
             cert: fs.readFileSync('cert/server-cert.pem'),
         }
+    },
+    
+    /*
+    ************************************************************************
+    ***   The following options REQUIRE a redis database to function !   ***
+    ************************************************************************
+    */
+    redis: {
+        host: "127.0.0.1",
+        port: 6379,
+        //password: null
     },
 
 
