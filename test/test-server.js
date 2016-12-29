@@ -5,7 +5,7 @@ var request = require('superagent'),
     net = require('net'),
     WebSocketClient = require('websocket').client,
     Server = require('../server.js'),
-    JanusClient = require('./JanusClient');
+    JanusClient = require('janus-node-client');
 
 
 describe('server', () => {
