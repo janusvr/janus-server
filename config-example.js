@@ -104,6 +104,6 @@ module.exports = {
 
     /* intervalPlugins are called in intervals specified in seconds. */
     intervalPlugins: [
-        { plugin: "janus-mysql-userlist", interval: 5 }
+        { plugin: "janus-mysql-userlist-official", interval: 5 }
     ],
 };
