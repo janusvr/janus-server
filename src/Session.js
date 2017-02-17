@@ -107,12 +107,10 @@ Session.validMethods = [
 
 // ## User Logon ##
 Session.prototype.logon = function(data) {
-
-    if(data.userId === undefined || data.userId === '') {
+    if(typeof data.userId !== "string" || data.userId === '') {
         this.clientError('Missing userId in data packet');
         return;
     }
-    
     if (!data.userId.match('^[a-zA-Z0-9_]+$')) {
         this.clientError('illegal character in user name, only use alphanumeric and underscore');
         return;
