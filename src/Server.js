@@ -10,7 +10,15 @@ var websocket = require('websocket-driver');
 var parser = require('http-string-parser');
 var WebSocketStream = require('./WebSocketStream');
 
-global.log = require('./Logging');
+//global.log = require('./Logging');
+global.log = {
+    _log: console.log,
+    info: console.log,
+    debug: console.log,
+    warn: console.log,
+    error: console.error,
+    http: console.log 
+};
 
 var Session = require('./Session');
 var Room = require('./Room');
