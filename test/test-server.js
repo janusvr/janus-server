@@ -4,9 +4,10 @@ var request = require('superagent'),
     expect = chai.expect,
     net = require('net'),
     WebSocketClient = require('websocket').client,
-    Server = require('../server.js'),
+    Server = require('../src/Server.js'),
     JanusClient = require('janus-node-client');
 
+global.config = require("../config.js");
 
 describe('server', () => {
     var app;

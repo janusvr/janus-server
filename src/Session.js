@@ -41,16 +41,14 @@ function Session(server, socket) {
 
 module.exports = Session;
 
-Session.prototype.send = function(method, data) {
-    var packet = JSON.stringify({method:method,data:data});
-    this._socket.write(packet+'\r\n');
+Session.prototype.send = function(packet) {
+    this._socket.write(packet+"\r\n");
     //log.info('S->C: ' + packet);
 };
 
 Session.prototype.clientError = function(message) {
     log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
-    this.send('error', {message:message});
-};
+    this.send(JSON.stringify({method: 'error', data :message}); };
 
 Session.validMethods = [
     'logon', 
