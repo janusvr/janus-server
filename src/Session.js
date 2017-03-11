@@ -2,6 +2,8 @@ var args = require('optimist').argv;
 var byline = require('byline');
 var config = require(args.config || '../config.js');
 
+var CRLF = "\r\n";
+var okayMessage = JSON.stringify({"method": "okay"}) + CRLF;
 function Session(server, socket) {
 
     var self = this;
@@ -37,18 +39,21 @@ function Session(server, socket) {
 };
 
 
-
+Session.prototype.makeMessage = function(method, data) {
+    return JSON.stringify({method: method, data: data}) + CRLF;
+}
 
 module.exports = Session;
 
-Session.prototype.send = function(packet) {
-    this._socket.write(packet+"\r\n");
+Session.prototype.send = function(message) {
+    this._socket.write(message);
     //log.info('S->C: ' + packet);
 };
 
 Session.prototype.clientError = function(message) {
     log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
-    this.send(JSON.stringify({method: 'error', data :message}); };
+    this.send(this.makeMessage(error, message)); 
+};
 
 Session.validMethods = [
     'logon', 
@@ -134,7 +139,7 @@ Session.prototype.logon = function(data) {
     var self = this;
     this._server._userList[data.userId] = {
         roomId: data.roomId,
-        send: function(method, data) { self.send(method, data); }
+        send: function(method, data) { self.send(self.makeMessage(method, data)); }
     }
 
     log.info('User: ' + this.id + ' signed on');
@@ -228,7 +233,7 @@ Session.prototype.subscribe = function(data) {
         this._rooms.push(room);
     }
 
-    this.send('okay');
+    this.send(okayMessage);
 };
 
 Session.prototype.unsubscribe = function(data) {
@@ -247,7 +252,7 @@ Session.prototype.unsubscribe = function(data) {
     if (room.isEmpty()) {
         delete this._server._rooms[data.roomId]; 
     }
-    this.send('okay');
+    this.send(okayMessage);
 };
 
 
@@ -264,7 +269,7 @@ Session.prototype.portal = function(portal) {
     };
 
     this.currentRoom.emit('user_portal', data);
-    this.send('okay');
+    this.send(okayMessage);
 };
 
 Session.prototype.users_online = function(data) {
@@ -292,9 +297,9 @@ Session.prototype.users_online = function(data) {
     }
 
     json = { "results": count, "roomId": data.roomId, "users": results };
-    this.send('users_online', json);
+    this.send(this.makeMessage('users_online', json));
 }
 
 Session.prototype.get_partylist = function(data) {
-    this.send('get_partylist', this._server._partyList);
+    this.send(this.makeMessage('get_partylist', this._server._partyList));
 }
