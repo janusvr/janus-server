@@ -4,7 +4,7 @@ var events = require('events');
 var fs = require('fs');
 var sets = require('simplesets');
 var mysql = require('mysql');
-
+var cluster = require('cluster');
 // websocket requires
 var websocket = require('websocket-driver');
 var parser = require('http-string-parser');
@@ -36,13 +36,19 @@ function Server() {
     this.redisClient = redis.createClient(config.redis);
     this.savePartyList();
 
+    if (cluster.isWorker)
+        this.workerId = cluster.worker.id.toString();
+    else this.workerId = process.pid.toString();
     this.redis = {
         pub: redis.createClient(config.redis),
         sub: redis.createClient(config.redis)
     }
-    this.redis.sub.on("message", (channel, message) => {
-        if (this._rooms[channel] !== undefined)
-            this._rooms[channel].emitFromChannel(message); 
+    this.redis.sub.on("pmessage", (pattern, channel, message) => {
+        var split = channel.split(':');
+        if (split[1] !== this.workerId && this._rooms[split[0]] !== undefined) {
+            console.log("Good message", channel);
+            this._rooms[split[0]].emitFromChannel(message);
+        }
     });
 }
 

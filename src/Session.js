@@ -47,12 +47,12 @@ module.exports = Session;
 
 Session.prototype.send = function(message) {
     this._socket.write(message);
-    //log.info('S->C: ' + packet);
+    log.info('S->C: ' + message);
 };
 
 Session.prototype.clientError = function(message) {
     log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
-    this.send(this.makeMessage(error, message)); 
+    this.send(this.makeMessage('error', message)); 
 };
 
 Session.validMethods = [

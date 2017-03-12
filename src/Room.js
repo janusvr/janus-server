@@ -2,13 +2,13 @@ var sets = require('simplesets');
 
 
 function Room(id, server) {
-    
+    this.server = server; 
     this.id = id;
     this._sessions = new sets.Set();
     this.sub = server.redis.sub;
     this.pub = server.redis.pub;
     // subscribe from here, then have a global handler that hands off to room
-    this.sub.subscribe(id);
+    this.sub.psubscribe(id + ':*');
     
 }
 
@@ -28,8 +28,9 @@ Room.prototype.isEmpty = function() {
 }
 
 Room.prototype.emitFromChannel = function(message) {
-    var parsed = JSON.parse(message);
-    this.emit(parsed.method, parsed.data, false);
+    this._sessions.each(function(s) {
+        s.send(message);
+    });
 };
 
 Room.prototype.emit = function(event, data, relay) {
@@ -38,15 +39,15 @@ Room.prototype.emit = function(event, data, relay) {
     // relay is a boolean switch to control whether the data
     // should be relayed to the redis channel for this room
     if (relay)
-         this.pub.publish(this.id, packet);
+         this.pub.publish(this.id + ':' + this.server.workerId, packet);
 
     this._sessions.each(function(s) {
-
+        console.log(s.id,'==',data.userId, data.userId === s.id) 
         //Dont echo events back to originiating session
         if(data.userId === s.id) {
             return;
         }
-
+        console.log('sending packet from room to session', packet);
         s.send(packet);
     });
 };
