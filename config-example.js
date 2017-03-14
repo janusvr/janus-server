@@ -82,21 +82,25 @@ module.exports = {
     /* hookPlugins are called while parsing messages */
     hookPlugins: {  
         logon: { 
-            plugins: [ "janus-mysql-auth" ]
+            plugins: [ 
+		//" janus-mysql-auth" 
+	]
         },
         enter_room: {
-            plugins: ["janus-mysql-popular"]
+            plugins: [
+		// "janus-mysql-popular"
+	]
         }
       
     },
 
     /* methodPlugins add new commands to the server */
     methodPlugins: {
-        ping: { plugin: "janus-method-ping" }
+        // ping: { plugin: "janus-method-ping" }
     },
 
     /* intervalPlugins are called in intervals specified in seconds. */
     intervalPlugins: [
-        { plugin: "janus-mysql-userlist-official", interval: 5 }
+        //{  plugin: "janus-mysql-userlist-official", interval: 6	}
     ],
 };
