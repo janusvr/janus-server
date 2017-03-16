@@ -46,7 +46,6 @@ function Server() {
     this.redis.sub.on("pmessage", (pattern, channel, message) => {
         var split = channel.split(':');
         if (split[1] !== this.workerId && this._rooms[split[0]] !== undefined) {
-            console.log("Good message", channel);
             this._rooms[split[0]].emitFromChannel(message);
         }
     });
@@ -127,8 +126,7 @@ Server.prototype.onConnect = function (socket) {
     var addr = socket.remoteAddress;
     var s;
 
-    console.log(`Connection on ${process.pid}`);
-    log.info('Client connected ' + addr);
+    log.info('Client connected ' + addr + ' pid: ' + process.pid);
 
     // setup for websocket
     var driver = websocket.server({'protocols': 'binary'});

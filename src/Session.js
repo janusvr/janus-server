@@ -47,7 +47,7 @@ module.exports = Session;
 
 Session.prototype.send = function(message) {
     this._socket.write(message);
-    log.info('S->C: ' + message);
+    //log.info('S->C: ' + message);
 };
 
 Session.prototype.clientError = function(message) {

@@ -42,12 +42,10 @@ Room.prototype.emit = function(event, data, relay) {
          this.pub.publish(this.id + ':' + this.server.workerId, packet);
 
     this._sessions.each(function(s) {
-        console.log(s.id,'==',data.userId, data.userId === s.id) 
         //Dont echo events back to originiating session
         if(data.userId === s.id) {
             return;
         }
-        console.log('sending packet from room to session', packet);
         s.send(packet);
     });
 };
