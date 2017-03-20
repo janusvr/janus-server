@@ -20,7 +20,7 @@
     "http-string-parser": "0.0.5",
     "janus-method-ping": "^0.0.3",
     "janus-mysql-auth": "^0.0.2",
-    "janus-mysql-userlist-official": "*",
+    "janus-mysql-userlist-official": ">=0.0.11",
     "janus-mysql-popular": "*",
     "mysql": "^2.12.0",
     "npmlog": "^0.1.1",
