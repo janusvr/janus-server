@@ -10,6 +10,7 @@ var websocket = require('websocket-driver');
 var parser = require('http-string-parser');
 var WebSocketStream = require('./WebSocketStream');
 
+
 //global.log = require('./Logging');
 global.log = {
     _log: console.log,
@@ -29,20 +30,32 @@ function Server() {
     var d = new Date();
     this._sessions = new sets.Set();
     this._rooms = {};
-    this._userList = Array();
+    this.workerId = process.pid.toString();
+    console.log(this.workerId, 'started');
+    this.redisClient = redis.createClient(config.redis);
+    
+    this.userListHandler = {
+        set: function(obj, prop, val) {
+            obj[prop] = val;
+            this.saveUserList();
+        }.bind(this),
+        deleteProperty: function(obj, prop) {
+            delete obj[prop];
+            this.saveUserList();
+        }.bind(this)
+    };
+
+    this._userList = new Proxy({}, this.userListHandler);
+ 
     this._partyList = {};
     this._plugins = new Plugins(this);
 
-    this.redisClient = redis.createClient(config.redis);
-    this.savePartyList();
-
-    if (cluster.isWorker)
-        this.workerId = cluster.worker.id.toString();
-    else this.workerId = process.pid.toString();
     this.redis = {
         pub: redis.createClient(config.redis),
         sub: redis.createClient(config.redis)
     }
+    this.savePartyList();
+
     this.redis.sub.on("pmessage", (pattern, channel, message) => {
         var split = channel.split(':');
         if (split[1] !== this.workerId && this._rooms[split[0]] !== undefined) {
@@ -59,16 +72,32 @@ Server.prototype.getRoom = function (roomId) {
     return this._rooms[roomId];
 };
 
-// ## Check if username is in use ##
-Server.prototype.isNameFree = function (name) {
+Server.prototype.saveUserList = function () {
+    this.redisClient.hmset("userlist", this.workerId, JSON.stringify(this._userList));
+};
 
+Server.prototype.savePartyList = function() {
+    console.log('saving partylist:', this._partyList);
+    this.redisClient.hmset("partylist", this.workerId,  JSON.stringify(this._partyList));
+};
+
+// ## Check if username is in use ##
+Server.prototype.isNameFree = function (name, cb) {
     var free = true;
-    this._sessions.each(function (s) {
-        if (s.id === name) {
-            free = false;
+    this.redisClient.hgetall('userlist', (err, obj) => {
+        console.log('obj', obj);
+        if (!obj) return cb(null, free);
+        var keys = Object.keys(obj);
+        for (var i = 0; i < keys.length; i++) {
+            var list = JSON.parse(obj[keys[i]]);
+            
+            if (list.hasOwnProperty(name)) {
+                free = false;
+                break;
+            }
         }
+        return cb(null, free);
     });
-    return free;
 };
 
 // ## Start Socket Server ##
@@ -110,15 +139,13 @@ Server.prototype.start = function (callback) {
 
 
 Server.prototype.close = function(cb) {
+    this.redisClient.hdel("userlist", this.workerId);
     this.redisClient.quit();
     this.server.close( (err) => {
         return cb(err);
     });
 }
 
-Server.prototype.savePartyList = function() {
-    this.redisClient.set('partylist', JSON.stringify(this._partyList));
-}
 
 // ## action on client connection ##
 Server.prototype.onConnect = function (socket) {
@@ -138,6 +165,13 @@ Server.prototype.onConnect = function (socket) {
         log.info('Client disconnected: ' + addr);
         if (s)
             self._sessions.remove(s);
+    });
+
+    socket.on('timeout', function() {
+        log.info('Client timed out: ' + addr);
+        if (s)
+            self._sessions.remove(s);
+        socket.destroy();
     });
 
     socket.once('data', function (data) {

@@ -13,11 +13,13 @@ if (cluster.isMaster) {
     console.log('Startup date/time: ' + Date());
     var redisClient = redis.createClient(global.config.redis);
     redisClient.del('userlist');
+    redisClient.del('partylist');
     for (var i = 0; i < numCPUs; i++) {
         var child = cluster.fork();
         console.log('spawned child with pid', child.process.pid);
         child.on('exit', () => {
-            redisClient.hdel('userlist', child.process.pid);            
+            redisClient.hdel('userlist', child.process.pid);
+            redisClient.hdel('partylist', child.process.pid);            
         });
     }
 

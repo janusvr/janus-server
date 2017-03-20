@@ -147,9 +147,9 @@ Session.prototype.logon = function(data) {
         log.info('User: ' + this.id + ' signed on');
         this.currentRoom = this._server.getRoom(data.roomId);
         setTimeout(function(){ 
-            if (!self._socket.destroyed)
+            if (!this._socket.destroyed)
                 self.subscribe(data); 
-        }, 500);
+        }.bind(this), 500);
     });
 };
 
@@ -174,6 +174,7 @@ Session.prototype.enter_room = function(data) {
     this._server._userList[this.id].oldRoomId = oldRoomId;
     this._server._userList[this.id].roomId = data.roomId;
     if ((data.partyMode == true) || (data.partyMode == "true")) {
+        console.log('client has partymode on');
         if (this._server._partyList[this.id] === undefined) {
             this._server._partyList[this.id] = {};
        
