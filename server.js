@@ -1,5 +1,7 @@
 /* global log */
 var cluster = require('cluster');
+var redis = require('redis');
+global.config = require('./config.js');
 
 if (cluster.isMaster) {
     var numCPUs  = require('os').cpus().length;
@@ -9,13 +11,22 @@ if (cluster.isMaster) {
     console.log('========================');
     console.log('See server.log for activity information and config.js for configuration');
     console.log('Startup date/time: ' + Date());
-    for (var i = 0; i < numCPUs; i++)
-        cluster.fork()
+    var redisClient = redis.createClient(global.config.redis);
+    redisClient.del('userlist');
+    for (var i = 0; i < numCPUs; i++) {
+        var child = cluster.fork();
+        console.log('spawned child with pid', child.process.pid);
+        child.on('exit', () => {
+            redisClient.hdel('userlist', child.process.pid);            
+        });
+    }
+
+    Object.keys(cluster.workers).forEach(function(id) {
+        console.log(cluster.workers[id].process.pid);
+    });
 }
 
 else {
-    var args = require('optimist').argv;
-    global.config = require(args.config || './config.js');
 
     var Server = require("./src/Server.js");
 

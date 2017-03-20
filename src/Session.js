@@ -25,6 +25,7 @@ function Session(server, socket) {
 
     socket.on('close', function() {
         // let's remove the userId from the online list
+        // TODO
         delete self._server._userList[self.id];
         delete self._server._partyList[self.id];
         self._server.savePartyList();
@@ -124,30 +125,32 @@ Session.prototype.logon = function(data) {
         return;
     }
 
-    if(!this._server.isNameFree(data.userId)) {
-        this.clientError('User name is already in use');
-        return;
-    }
+    this._server.isNameFree(data.userId, (err, free) => {
+        if (!free) {
+            this.clientError('User name is already in use');
+            return;
+        }
+        this._server._plugins.call("logon", this, data);
 
-    this._server._plugins.call("logon", this, data);
+        this.id = data.userId;
+        this._authed = true;
+        this.client_version = 
+                (data.version === undefined)?"undefined":data.version;
+        
+        var self = this;
+        // TODO
+        this._server._userList[data.userId] = {
+            roomId: data.roomId,
+            //send: function(method, data) { self.send(self.makeMessage(method, data)); }
+        }
 
-    this.id = data.userId;
-    this._authed = true;
-    this.client_version = 
-            (data.version === undefined)?"undefined":data.version;
-    
-    var self = this;
-    this._server._userList[data.userId] = {
-        roomId: data.roomId,
-        send: function(method, data) { self.send(self.makeMessage(method, data)); }
-    }
-
-    log.info('User: ' + this.id + ' signed on');
-    this.currentRoom = this._server.getRoom(data.roomId);
-    setTimeout(function(){ 
-        if (!self._socket.destroyed)
-            self.subscribe(data); 
-    }, 500);
+        log.info('User: ' + this.id + ' signed on');
+        this.currentRoom = this._server.getRoom(data.roomId);
+        setTimeout(function(){ 
+            if (!self._socket.destroyed)
+                self.subscribe(data); 
+        }, 500);
+    });
 };
 
 // ## user enter room ##
@@ -167,7 +170,7 @@ Session.prototype.enter_room = function(data) {
         });
     }
     this._server._plugins.call("enter_room", data);
-    
+    // TODO  
     this._server._userList[this.id].oldRoomId = oldRoomId;
     this._server._userList[this.id].roomId = data.roomId;
     if ((data.partyMode == true) || (data.partyMode == "true")) {
@@ -280,6 +283,7 @@ Session.prototype.users_online = function(data) {
     if(data.maxResults !== undefined && data.maxResults < maxResults) maxResults = data.maxResults;
 
     if(data.roomId === undefined) {
+        // TODO
         for(k in this._server._userList) {
             results.push(k);
             count++;
