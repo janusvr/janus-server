@@ -77,7 +77,6 @@ Server.prototype.saveUserList = function () {
 };
 
 Server.prototype.savePartyList = function() {
-    console.log('saving partylist:', this._partyList);
     this.redisClient.hmset("partylist", this.workerId,  JSON.stringify(this._partyList));
 };
 
@@ -85,7 +84,6 @@ Server.prototype.savePartyList = function() {
 Server.prototype.isNameFree = function (name, cb) {
     var free = true;
     this.redisClient.hgetall('userlist', (err, obj) => {
-        console.log('obj', obj);
         if (!obj) return cb(null, free);
         var keys = Object.keys(obj);
         for (var i = 0; i < keys.length; i++) {
@@ -140,6 +138,7 @@ Server.prototype.start = function (callback) {
 
 Server.prototype.close = function(cb) {
     this.redisClient.hdel("userlist", this.workerId);
+    this.redisClient.hdel("partylist", this.workerId);
     this.redisClient.quit();
     this.server.close( (err) => {
         return cb(err);
