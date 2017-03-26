@@ -73,17 +73,17 @@ Server.prototype.getRoom = function (roomId) {
 };
 
 Server.prototype.saveUserList = function () {
-    this.redisClient.hmset("userlist", this.workerId, JSON.stringify(this._userList));
+    this.redisClient.hmset("multi:userlist", this.workerId, JSON.stringify(this._userList));
 };
 
 Server.prototype.savePartyList = function() {
-    this.redisClient.hmset("partylist", this.workerId,  JSON.stringify(this._partyList));
+    this.redisClient.hmset("multi:partylist", this.workerId,  JSON.stringify(this._partyList));
 };
 
 // ## Check if username is in use ##
 Server.prototype.isNameFree = function (name, cb) {
     var free = true;
-    this.redisClient.hgetall('userlist', (err, obj) => {
+    this.redisClient.hgetall('multi:userlist', (err, obj) => {
         if (!obj) return cb(null, free);
         var keys = Object.keys(obj);
         for (var i = 0; i < keys.length; i++) {
@@ -137,8 +137,8 @@ Server.prototype.start = function (callback) {
 
 
 Server.prototype.close = function(cb) {
-    this.redisClient.hdel("userlist", this.workerId);
-    this.redisClient.hdel("partylist", this.workerId);
+    this.redisClient.hdel("multi:userlist", this.workerId);
+    this.redisClient.hdel("multi:partylist", this.workerId);
     this.redisClient.quit();
     this.server.close( (err) => {
         return cb(err);
