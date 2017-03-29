@@ -47,7 +47,8 @@ Session.prototype.makeMessage = function(method, data) {
 module.exports = Session;
 
 Session.prototype.send = function(message) {
-    this._socket.write(message);
+    if (!this._socket.destroyed)
+        this._socket.write(message);
     //log.info('S->C: ' + message);
 };
 
