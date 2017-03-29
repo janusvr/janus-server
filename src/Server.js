@@ -156,23 +156,26 @@ Server.prototype.onConnect = function (socket) {
 
     // setup for websocket
     var driver = websocket.server({'protocols': 'binary'});
+    
     socket.on('error', function (err) {
         log.error(addr);
         log.error('Socket error: ', err);
     });
+   
     socket.on('close', function () {
         log.info('Client disconnected: ' + addr);
         if (s)
             self._sessions.remove(s);
+            s = null;
     });
-
+    /* disable until timeout is set
     socket.on('timeout', function() {
         log.info('Client timed out: ' + addr);
         if (s)
             self._sessions.remove(s);
         socket.destroy();
     });
-
+    */
     socket.once('data', function (data) {
         // try to parse the packet as http
         var request = parser.parseRequest(data.toString());
