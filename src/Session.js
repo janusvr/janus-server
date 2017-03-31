@@ -43,7 +43,8 @@ module.exports = Session;
 
 Session.prototype.send = function(method, data) {
     var packet = JSON.stringify({method:method,data:data});
-    this._socket.write(packet+'\r\n');
+    if (!this._socket.destroyed)
+        this._socket.write(packet+'\r\n');
     //log.info('S->C: ' + packet);
 };
 
