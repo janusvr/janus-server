@@ -242,25 +242,35 @@ Get list of connected users.
 
 Defined in config.js: config.maxUserResults = 100.
 
-{“method”: “users_online”}
+```json
+{"method": "users_online"} 
+```
 
     List all users online up to config.maxUserResults.
 
-{“method”: “users_online”, “data”: {“maxResults”: 50}}
+```json
+{"method": "users_online", "data": {"maxResults": 50}}
+```
 
     List all users online up to ‘maxResults’  or config.maxUserResults, whichever is smaller.
 
-{“method”: “users_online”, “data”: {“roomId”: “xyz”}}
+```json
+{"method": "users_online", "data": {"roomId": "xyz"}}
+```
 
     List all users in ‘roomId’ up to config.maxUserResults.
 
-{“method”: “users_online”, “data”: {“maxResults”: 50, “roomId”: “xyz”}}
+```json
+{"method": "users_online", "data": {"maxResults": 50, "roomId": "xyz"}}
+```
 
     List all users in ‘roomId’ up to ‘maxResults’  or config.maxUserResults, whichever is smaller.
 
 Reply:
 
-{“method”: “users_online”, “data”: {“results”: 50, “roomId”: “xyz”, “users”: {“Arthur Dent”, “Data”, “Lore”}}
+```json
+{"method": "users_online", "data": {"results": 50, "roomId": "xyz", "users": {"Arthur Dent", "Data", "Lore"}}
+```
 
 
 ======================================
