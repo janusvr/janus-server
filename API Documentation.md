@@ -344,3 +344,13 @@ Real example from interaction with JanusVR 40.3:
 ```json
 {"method":"user_portal", "data":{"roomId":"e562b2e1339fc08d635d28481121857c","userId":"ProudMinna333","url":"http://www.vrsites.com","pos":"-7.16883 -0.267702 -6.57243","fwd":"0.967686 0 -0.234104"}}
 ```
+
+-----------------------------------
+#### 2.4 "user_disconnected" notification
+-----------------------------------
+
+When a user disconnects:
+
+```json
+{"method":"user_disconnected","data":{"userId":"LL"}}
+```
