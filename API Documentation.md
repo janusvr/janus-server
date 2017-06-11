@@ -269,7 +269,7 @@ Defined in config.js: config.maxUserResults = 100.
 Reply:
 
 ```json
-{"method": "users_online", "data": {"results": 50, "roomId": "xyz", "users": {"Arthur Dent", "Data", "Lore"}}
+{"method": "users_online", "data": {"results": 3, "roomId": "xyz", "users": ["Arthur Dent", "Data", "Lore"]}
 ```
 
 
