@@ -164,9 +164,10 @@ Server.prototype.onConnect = function (socket) {
    
     socket.on('close', function () {
         log.info('Client disconnected: ' + addr);
-        if (s)
+        if (s) {
             self._sessions.remove(s);
             s = null;
+        }
     });
     /* disable until timeout is set
     socket.on('timeout', function() {
