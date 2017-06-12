@@ -45,7 +45,7 @@ Session.prototype.makeMessage = function(method, data) {
 }
 
 Session.prototype.makeError = function(data) {
-    return JSON.stringify({method: "error", message: data}) + CRLF;
+    return JSON.stringify({method: "error", data: {message: data}}) + CRLF;
 };
 
 module.exports = Session;
