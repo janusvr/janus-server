@@ -44,6 +44,10 @@ Session.prototype.makeMessage = function(method, data) {
     return JSON.stringify({method: method, data: data}) + CRLF;
 }
 
+Session.prototype.makeError = function(data) {
+    return JSON.stringify({method: "error", message: data}) + CRLF;
+};
+
 module.exports = Session;
 
 Session.prototype.send = function(message) {
@@ -54,7 +58,7 @@ Session.prototype.send = function(message) {
 
 Session.prototype.clientError = function(message) {
     log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
-    this.send(this.makeMessage('error', message)); 
+    this.send(this.makeError(message)); 
 };
 
 Session.validMethods = [
