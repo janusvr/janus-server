@@ -1,5 +1,4 @@
-# Janus VR Presence Server ![build status](https://travis-ci.org/janusvr/janus-server.svg?branch=master)
-
+# Janus VR Presence Server 
 This version is the one that VR Sites runs, which is the default server unless another is specified in your `<Room>` code. [Read here](http://www.dgp.toronto.edu/~mccrae/projects/firebox/notes.html#multiserver) to learn how your room can specify a different server.
 
 ## Introduction
