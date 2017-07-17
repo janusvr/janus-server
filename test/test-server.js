@@ -1,10 +1,13 @@
 var request = require('superagent'),
-    assert = require('chai').assert,
+    chai = require('chai'),
+    assert = chai.assert,
+    expect = chai.expect,
     net = require('net'),
     WebSocketClient = require('websocket').client,
-    Server = require('../server.js'),
-    JanusClient = require('./JanusClient');
+    Server = require('../src/Server.js'),
+    JanusClient = require('janus-node-client');
 
+global.config = require("../config.js");
 
 describe('server', () => {
     var app;
@@ -45,54 +48,6 @@ describe('server', () => {
     })
     describe("tcp connections", runClientTests.bind(this, "tcp")); 
     describe("websocket connections", runClientTests.bind(this, "websocket"));
-    describe('apis', (done) => {
-        describe('popular rooms', (done) => {
-            before( (done) => {
-                process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0; // turn off ssl cert validation
-                done();
-            });
-
-            after( (done) => {
-                process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 1; // turn off ssl cert validation
-                done(); 
-            });
-            it('should return 200 when /getPopularRooms is requested over http', (done) => {
-                request
-                .get('http://localhost:8080/getPopularRooms')
-                .end(function(err, res) {
-                    if (err) return done(err);
-                    assert.equal(res.status, 200);
-                    done(); 
-                });
-            });
-            it('should return 200 when /getPopularRooms is requested over https', (done) => {
-                request
-                .get('https://localhost:8081/getPopularRooms')
-                .end( (err, res) => {
-                    if (err) return done(err);
-                    assert.equal(res.status, 200);
-                    done();
-                });
-            });
-            it('should return 200 when POSTing to /addThumb', (done) => {
-                var data = {
-                    roomUrl: "http://testroom",
-                    thumbnail: "http://thumbnail",
-                    token: "testtoken"
-                }
-                request
-                .post('http://localhost:8080/addThumb')
-                .set('Content-Type', 'application/json')
-                .send(JSON.stringify(data))
-                .end((err, res) => {
-                    if (err) console.log(err);
-                    var response = res.body;
-                    assert.equal(response.success, true);
-                    done();
-                });
-            });
-        });
-    });
 });
 
 function runClientTests (transport, done) {
@@ -102,7 +57,7 @@ function runClientTests (transport, done) {
             host: 'localhost', 
             port: global.config.port, 
             room: 'http://testroom', 
-            userId: 'tcptester'
+            userId: 'tester'
         };
     before( (done) => { 
         client = new JanusClient(clientOptions);
@@ -120,7 +75,7 @@ function runClientTests (transport, done) {
     });
     it('logon should return {method: "okay"}', (done) =>  { checkLogon(client, done) });
     it('subscribe should return {method: "okay"}', (done) => { checkSubscribe(client, done) });
-    it('enter_room should not crash', (done) => { checkEnterRoom(client, done) });
+    it('enter_room should work', (done) => { checkEnterRoom(client, done)});
     it('unsubscribe should return {method: "okay"}', (done) => { checkUnsubscribe(client, done) });
 
 }
@@ -145,8 +100,13 @@ function checkSubscribe (client, done) {
     client.sendSubscribe(client._roomUrl);
 }
 
-function checkEnterRoom (client, done) {
-    client.enter_room(client._roomUrl, true, () => {done();});
+function checkEnterRoom (client, done, party) {
+    client.enter_room(client._roomUrl, true, () => {
+        if (party == true)
+            checkPartyList(done);
+        else
+            return done();
+    });
 }
 
 function checkUnsubscribe (client, done) {
@@ -156,4 +116,3 @@ function checkUnsubscribe (client, done) {
     });
     client.unsubscribe();
 }
-

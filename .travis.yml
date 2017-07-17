@@ -1,9 +1,10 @@
 language: node_js
 node_js:
-    - "4"
     - "6"
+    - "7"
 services:
     - mysql
+    - redis-server
 before_install:
     - mysql -e 'CREATE DATABASE janusvr;'
     - cp test/test-config.js ./config.js

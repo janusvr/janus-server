@@ -2,6 +2,8 @@ var args = require('optimist').argv;
 var byline = require('byline');
 var config = require(args.config || '../config.js');
 
+var CRLF = "\r\n";
+var okayMessage = JSON.stringify({"method": "okay"}) + CRLF;
 function Session(server, socket) {
 
     var self = this;
@@ -23,9 +25,10 @@ function Session(server, socket) {
 
     socket.on('close', function() {
         // let's remove the userId from the online list
+        // TODO
         delete self._server._userList[self.id];
         delete self._server._partyList[self.id];
-
+        self._server.savePartyList();
         if ( self.currentRoom ) {
             self.currentRoom.emit('user_disconnected', { userId:self.id });
         }
@@ -37,19 +40,25 @@ function Session(server, socket) {
 };
 
 
+Session.prototype.makeMessage = function(method, data) {
+    return JSON.stringify({method: method, data: data}) + CRLF;
+}
 
+Session.prototype.makeError = function(data) {
+    return JSON.stringify({method: "error", data: {message: data}}) + CRLF;
+};
 
 module.exports = Session;
 
-Session.prototype.send = function(method, data) {
-    var packet = JSON.stringify({method:method,data:data});
-    this._socket.write(packet+'\r\n');
-    //log.info('S->C: ' + packet);
+Session.prototype.send = function(message) {
+    if (!this._socket.destroyed)
+        this._socket.write(message);
+    //log.info('S->C: ' + message);
 };
 
 Session.prototype.clientError = function(message) {
     log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
-    this.send('error', {message:message});
+    this.send(this.makeError(message)); 
 };
 
 Session.validMethods = [
@@ -107,12 +116,10 @@ Session.validMethods = [
 
 // ## User Logon ##
 Session.prototype.logon = function(data) {
-
-    if(data.userId === undefined || data.userId === '') {
+    if(typeof data.userId !== "string" || data.userId === '') {
         this.clientError('Missing userId in data packet');
         return;
     }
-    
     if (!data.userId.match('^[a-zA-Z0-9_]+$')) {
         this.clientError('illegal character in user name, only use alphanumeric and underscore');
         return;
@@ -123,30 +130,32 @@ Session.prototype.logon = function(data) {
         return;
     }
 
-    if(!this._server.isNameFree(data.userId)) {
-        this.clientError('User name is already in use');
-        return;
-    }
+    this._server.isNameFree(data.userId, (err, free) => {
+        if (!free) {
+            this.clientError('User name is already in use');
+            return;
+        }
+        this._server._plugins.call("logon", this, data);
 
-    this._server._plugins.call("logon", this, data);
+        this.id = data.userId;
+        this._authed = true;
+        this.client_version = 
+                (data.version === undefined)?"undefined":data.version;
+        
+        var self = this;
+        // TODO
+        this._server._userList[data.userId] = {
+            roomId: data.roomId,
+            //send: function(method, data) { self.send(self.makeMessage(method, data)); }
+        }
 
-    this.id = data.userId;
-    this._authed = true;
-    this.client_version = 
-            (data.version === undefined)?"undefined":data.version;
-    
-    var self = this;
-    this._server._userList[data.userId] = {
-        roomId: data.roomId,
-        send: function(method, data) { self.send(method, data); }
-    }
-
-    log.info('User: ' + this.id + ' signed on');
-    this.currentRoom = this._server.getRoom(data.roomId);
-    setTimeout(function(){ 
-        if (!self._socket.destroyed)
-            self.subscribe(data); 
-    }, 500);
+        log.info('User: ' + this.id + ' signed on');
+        this.currentRoom = this._server.getRoom(data.roomId);
+        setTimeout(function(){ 
+            if (!this._socket.destroyed)
+                self.subscribe(data); 
+        }.bind(this), 500);
+    });
 };
 
 // ## user enter room ##
@@ -166,7 +175,7 @@ Session.prototype.enter_room = function(data) {
         });
     }
     this._server._plugins.call("enter_room", data);
-    
+    // TODO  
     this._server._userList[this.id].oldRoomId = oldRoomId;
     this._server._userList[this.id].roomId = data.roomId;
     if ((data.partyMode == true) || (data.partyMode == "true")) {
@@ -183,7 +192,7 @@ Session.prototype.enter_room = function(data) {
     } else {
          delete this._server._partyList[this.id];       
     }
-            
+    this._server.savePartyList();    
     this.currentRoom = this._server.getRoom(data.roomId);
     this.currentRoom.emit('user_enter', { 
         userId: this.id, 
@@ -232,7 +241,7 @@ Session.prototype.subscribe = function(data) {
         this._rooms.push(room);
     }
 
-    this.send('okay');
+    this.send(okayMessage);
 };
 
 Session.prototype.unsubscribe = function(data) {
@@ -251,7 +260,7 @@ Session.prototype.unsubscribe = function(data) {
     if (room.isEmpty()) {
         delete this._server._rooms[data.roomId]; 
     }
-    this.send('okay');
+    this.send(okayMessage);
 };
 
 
@@ -268,7 +277,7 @@ Session.prototype.portal = function(portal) {
     };
 
     this.currentRoom.emit('user_portal', data);
-    this.send('okay');
+    this.send(okayMessage);
 };
 
 Session.prototype.users_online = function(data) {
@@ -279,6 +288,7 @@ Session.prototype.users_online = function(data) {
     if(data.maxResults !== undefined && data.maxResults < maxResults) maxResults = data.maxResults;
 
     if(data.roomId === undefined) {
+        // TODO
         for(k in this._server._userList) {
             results.push(k);
             count++;
@@ -296,9 +306,9 @@ Session.prototype.users_online = function(data) {
     }
 
     json = { "results": count, "roomId": data.roomId, "users": results };
-    this.send('users_online', json);
+    this.send(this.makeMessage('users_online', json));
 }
 
 Session.prototype.get_partylist = function(data) {
-    this.send('get_partylist', this._server._partyList);
+    this.send(this.makeMessage('get_partylist', this._server._partyList));
 }

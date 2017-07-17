@@ -1,11 +1,16 @@
 var sets = require('simplesets');
 
 
-function Room(id) {
-
+function Room(id, server) {
+    this.server = server; 
     this.id = id;
     this._sessions = new sets.Set();
-
+    if (global.config.multiprocess.enabled) {
+        this.sub = server.redis.sub;
+        this.pub = server.redis.pub;
+        // subscribe from here, then have a global handler that hands off to room
+        this.sub.psubscribe(id + ':*');
+    }
 }
 
 module.exports = Room;
@@ -23,15 +28,26 @@ Room.prototype.isEmpty = function() {
     return this._sessions.size() === 0;
 }
 
-Room.prototype.emit = function(event,data) {
+Room.prototype.emitFromChannel = function(message) {
+    this._sessions.each(function(s) {
+        s.send(message);
+    });
+};
+
+Room.prototype.emit = function(event, data, relay) {
+    relay = relay || true;
+    if (!global.config.multiprocess.enabled) relay = false;
+    var packet = JSON.stringify({method:event, data: data}) + "\r\n";
+    // relay is a boolean switch to control whether the data
+    // should be relayed to the redis channel for this room
+    if (relay)
+         this.pub.publish(this.id + ':' + this.server.workerId, packet);
 
     this._sessions.each(function(s) {
-
         //Dont echo events back to originiating session
         if(data.userId === s.id) {
             return;
         }
-
-        s.send(event,data);
+        s.send(packet);
     });
 };
