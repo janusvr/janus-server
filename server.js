@@ -29,6 +29,5 @@ if (cluster.isMaster && global.config.multiprocess.enabled) {
 
 else {
     var Server = require("./src/Server.js");
-
     (new Server()).start();
 }
