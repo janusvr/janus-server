@@ -3,20 +3,19 @@ var cluster = require('cluster');
 var redis = require('redis');
 global.config = require('./config.js');
 
-if (cluster.isMaster) {
-    var numCPUs  = require('os').cpus().length;
+if (cluster.isMaster && global.config.multiprocess.enabled) {
+    var numCPUs  = global.config.multiproccess.processes;
     console.log(`Starting ${numCPUs} workers`);
     console.log('========================');
     console.log('Janus VR Presence Server (clustered)');
     console.log('========================');
-    console.log('See server.log for activity information and config.js for configuration');
+    console.log('See config.js for configuration');
     console.log('Startup date/time: ' + Date());
     var redisClient = redis.createClient(global.config.redis);
-    redisClient.del('userlist');
-    redisClient.del('partylist');
+    redisClient.del('userlist:multi');
+    redisClient.del('partylist:multi');
     for (var i = 0; i < numCPUs; i++) {
         var child = cluster.fork();
-        console.log('spawned child with pid', child.process.pid);
         child.on('exit', () => {
             redisClient.hdel('userlist', child.process.pid);
             redisClient.hdel('partylist', child.process.pid);            
@@ -24,12 +23,11 @@ if (cluster.isMaster) {
     }
 
     Object.keys(cluster.workers).forEach(function(id) {
-        console.log(cluster.workers[id].process.pid);
+        console.log('SPAWNED', cluster.workers[id].process.pid);
     });
 }
 
 else {
-
     var Server = require("./src/Server.js");
 
     (new Server()).start();

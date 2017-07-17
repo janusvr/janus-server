@@ -32,8 +32,19 @@ function Server() {
     this._rooms = {};
     this.workerId = process.pid.toString();
     console.log(this.workerId, 'started');
-    this.redisClient = redis.createClient(config.redis);
-    
+    if (global.config.multiprocess.enabled) { 
+        this.redisClient = redis.createClient(config.redis);
+        this.redis = {
+            pub: redis.createClient(config.redis),
+            sub: redis.createClient(config.redis)
+        }
+        this.redis.sub.on("pmessage", (pattern, channel, message) => {
+            var split = channel.split(':');
+            if (split[1] !== this.workerId && this._rooms[split[0]] !== undefined) {
+                this._rooms[split[0]].emitFromChannel(message);
+            }
+        });
+    }
     this.userListHandler = {
         set: function(obj, prop, val) {
             obj[prop] = val;
@@ -45,23 +56,12 @@ function Server() {
         }.bind(this)
     };
 
-    this._userList = new Proxy({}, this.userListHandler);
- 
+    this._userList = new Proxy({}, this.userListHandler); 
     this._partyList = {};
     this._plugins = new Plugins(this);
-
-    this.redis = {
-        pub: redis.createClient(config.redis),
-        sub: redis.createClient(config.redis)
-    }
     this.savePartyList();
 
-    this.redis.sub.on("pmessage", (pattern, channel, message) => {
-        var split = channel.split(':');
-        if (split[1] !== this.workerId && this._rooms[split[0]] !== undefined) {
-            this._rooms[split[0]].emitFromChannel(message);
-        }
-    });
+    this.isNameFree = global.config.multiprocess.enabled ? isNameFreeMulti.bind(this) : isNameFreeSingle.bind(this);
 }
 
 Server.prototype.getRoom = function (roomId) {
@@ -73,15 +73,16 @@ Server.prototype.getRoom = function (roomId) {
 };
 
 Server.prototype.saveUserList = function () {
-    this.redisClient.hmset("multi:userlist", this.workerId, JSON.stringify(this._userList));
+    if (global.config.multiprocess.enabled)
+        this.redisClient.hmset("multi:userlist", this.workerId, JSON.stringify(this._userList));
 };
 
 Server.prototype.savePartyList = function() {
-    this.redisClient.hmset("multi:partylist", this.workerId,  JSON.stringify(this._partyList));
+    if (global.config.multiprocess.enabled)
+        this.redisClient.hmset("multi:partylist", this.workerId,  JSON.stringify(this._partyList));
 };
 
-// ## Check if username is in use ##
-Server.prototype.isNameFree = function (name, cb) {
+function isNameFreeMulti(name, cb) {
     var free = true;
     this.redisClient.hgetall('multi:userlist', (err, obj) => {
         if (!obj) return cb(null, free);
@@ -96,7 +97,16 @@ Server.prototype.isNameFree = function (name, cb) {
         }
         return cb(null, free);
     });
-};
+}
+
+function isNameFreeSingle(name, cb) {
+    var free = true;
+    this._sessions.each(function(s) {
+        if (s.id === name)
+            free = false;
+    });
+    return cb(null, free); 
+}
 
 // ## Start Socket Server ##
 Server.prototype.start = function (callback) {
@@ -137,9 +147,7 @@ Server.prototype.start = function (callback) {
 
 
 Server.prototype.close = function(cb) {
-    this.redisClient.hdel("multi:userlist", this.workerId);
-    this.redisClient.hdel("multi:partylist", this.workerId);
-    this.redisClient.quit();
+    if (this.redisClient) this.redisClient.quit();
     this.server.close( (err) => {
         return cb(err);
     });
