@@ -23,7 +23,7 @@ global.log = {
 
 var Session = require('./Session');
 var Room = require('./Room');
-var Plugins = require('./Plugins');
+//var Plugins = require('./Plugins');
 var redis = require('redis');
 
 function Server() {
@@ -58,7 +58,7 @@ function Server() {
 
     this._userList = new Proxy({}, this.userListHandler); 
     this._partyList = {};
-    this._plugins = new Plugins(this);
+    //this._plugins = new Plugins(this);
     this.savePartyList();
 
     this.isNameFree = global.config.multiprocess.enabled ? isNameFreeMulti.bind(this) : isNameFreeSingle.bind(this);
@@ -108,7 +108,7 @@ function isNameFreeSingle(name, cb) {
     return cb(null, free); 
 }
 
-// ## Start Socket Server ##
+// ## Start TCP Server ##
 Server.prototype.start = function (callback) {
 
     this.server = net.createServer(this.onConnect.bind(this));

@@ -1,6 +1,5 @@
 var sets = require('simplesets');
 
-
 function Room(id, server) {
     this.server = server; 
     this.id = id;
