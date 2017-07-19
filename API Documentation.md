@@ -242,25 +242,35 @@ Get list of connected users.
 
 Defined in config.js: config.maxUserResults = 100.
 
-{“method”: “users_online”}
+```json
+{"method": "users_online"} 
+```
 
     List all users online up to config.maxUserResults.
 
-{“method”: “users_online”, “data”: {“maxResults”: 50}}
+```json
+{"method": "users_online", "data": {"maxResults": 50}}
+```
 
     List all users online up to ‘maxResults’  or config.maxUserResults, whichever is smaller.
 
-{“method”: “users_online”, “data”: {“roomId”: “xyz”}}
+```json
+{"method": "users_online", "data": {"roomId": "xyz"}}
+```
 
     List all users in ‘roomId’ up to config.maxUserResults.
 
-{“method”: “users_online”, “data”: {“maxResults”: 50, “roomId”: “xyz”}}
+```json
+{"method": "users_online", "data": {"maxResults": 50, "roomId": "xyz"}}
+```
 
     List all users in ‘roomId’ up to ‘maxResults’  or config.maxUserResults, whichever is smaller.
 
 Reply:
 
-{“method”: “users_online”, “data”: {“results”: 50, “roomId”: “xyz”, “users”: {“Arthur Dent”, “Data”, “Lore”}}
+```json
+{"method": "users_online", "data": {"results": 3, "roomId": "xyz", "users": ["Arthur Dent", "Data", "Lore"]}
+```
 
 
 ======================================
@@ -343,4 +353,14 @@ Real example from interaction with JanusVR 40.3:
 
 ```json
 {"method":"user_portal", "data":{"roomId":"e562b2e1339fc08d635d28481121857c","userId":"ProudMinna333","url":"http://www.vrsites.com","pos":"-7.16883 -0.267702 -6.57243","fwd":"0.967686 0 -0.234104"}}
+```
+
+-----------------------------------
+#### 2.4 "user_disconnected" notification
+-----------------------------------
+
+When a user disconnects:
+
+```json
+{"method":"user_disconnected","data":{"userId":"LL"}}
 ```
