@@ -6,7 +6,7 @@ var path = require('path');
 global.config = require(path.join(process.cwd(), 'config.js'));
 
 if (cluster.isMaster && global.config.multiprocess.enabled) {
-    var numCPUs  = global.config.multiproccess.processes;
+    var numCPUs  = global.config.multiprocess.processes;
     console.log(`Starting ${numCPUs} workers`);
     console.log('========================');
     console.log('Janus VR Presence Server (clustered)');
