@@ -1,7 +1,9 @@
 /* global log */
 var cluster = require('cluster');
 var redis = require('redis');
-global.config = require('./config.js');
+var path = require('path');
+
+global.config = require(path.join(process.cwd(), 'config.js'));
 
 if (cluster.isMaster && global.config.multiprocess.enabled) {
     var numCPUs  = global.config.multiproccess.processes;

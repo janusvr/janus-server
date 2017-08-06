@@ -23,7 +23,6 @@ function setLogonData(data, next) {
     this.client_version = 
             (data.version === undefined)?"undefined":data.version;
     
-    // TODO
     this._server._userList[data.userId] = {
         roomId: data.roomId,
     }

@@ -37,8 +37,5 @@
     "superagent": "^2.2.0",
     "websocket": "*"
   },
-  "bin": "server.js",
-  "pkg": {
-    "assets": ["config.js", "src/MethodMiddleware/*.js"]
-  }
+  "bin": "server.js"
 }

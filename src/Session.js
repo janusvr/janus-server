@@ -1,6 +1,5 @@
 var args = require('optimist').argv;
 var byline = require('byline');
-var config = require(args.config || '../config.js');
 var CRLF = "\r\n";
 const okayMessage = JSON.stringify({"method": "okay"}) + CRLF;
 var getMiddleware = require('./MethodMiddleware');
@@ -103,7 +102,8 @@ Session.prototype.parseMessage = function(data) {
     payload.data._userId = this.id;
     payload.data._userList = this._server._userList;
     payload.data._roomEmit = (method, data) => { this.currentRoom.emit(method, data) };
-    this.methods[payload.method](payload.data);
+    if (this.methods.hasOwnProperty(payload.method)) 
+        this.methods[payload.method](payload.data);
 };
 
 Session.prototype.get_partylist = function(data) {

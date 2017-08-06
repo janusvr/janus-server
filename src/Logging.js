@@ -3,7 +3,6 @@ var npmlog = require('npmlog');
 var args = require('optimist').argv;//Noted that this is deprecated.  TODO: replace with either minimist or yargs
 var onFinished = require('finished');
 var fs = require('fs');
-var config = require(args.config || '../config.js');
 var rootDirectory = __dirname.substr(0,__dirname.lastIndexOf('/')+1);
 
 function callingFile(index, err) {

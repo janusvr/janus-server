@@ -1,5 +1,4 @@
 var args = require('optimist').argv;
-var config = require(args.config || '../config.js');
 var Session = require('./Session');
 
 function Plugins(server) {
