@@ -115,11 +115,9 @@ Server.prototype.start = function (callback) {
     this.server.listen(config.port, "::", function (err) {
 
         if (err) {
-            log.error('Socket Server error listening on port: ' + config.port);
             process.exit(1);
         }
 
-        log.info('Socket Server listening on port: ' + config.port);
         console.log('Socket Server listening on port: ' + config.port);
 
     });
