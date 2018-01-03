@@ -21,25 +21,23 @@ function Session(server, socket) {
 
     byline(socket).on('data', this.parseMessage.bind(this));
 
-    socket.on('close', function() {
-        // let's remove the userId from the online list
-        delete self._server._userList[self.id];
-        delete self._server._partyList[self.id];
-        self._server.savePartyList();
-        if ( self.currentRoom ) {
-            self.currentRoom.emit('user_disconnected', { userId:self.id });
-        }
-
-        self._rooms.forEach(function(room) {
-            room.removeSession(self);
-        });
-    });
 };
 
 
-
-
 module.exports = Session;
+
+Session.prototype.close = function() {
+    console.log("close called on session");
+    delete this._server._userList[this.id];
+    delete this._server._partyList[this.id];
+    this._server.savePartyList();
+    if ( this.currentRoom ) {
+        this.currentRoom.emit('user_disconnected', { userId:this.id });
+    }
+    this._rooms.forEach(function(room) {
+        room.removeSession(this);
+    });
+}
 
 Session.prototype.send = function(method, data) {
     var packet = JSON.stringify({method:method,data:data});

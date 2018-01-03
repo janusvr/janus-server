@@ -13,7 +13,14 @@ var websocket = require('websocket-driver');
 var parser = require('http-string-parser');
 var WebSocketStream = require('./src/WebSocketStream');
 
-global.log = require('./src/Logging');
+global.log = {
+    _log: console.log,
+    info: console.log,
+    debug: console.log,
+    warn: console.log,
+    error: console.error,
+    http: console.log 
+};
 
 var Session = require('./src/Session');
 var Room = require('./src/Room');
@@ -129,9 +136,16 @@ Server.prototype.onConnect = function (socket) {
     socket.on('close', function () {
         log.info('Client disconnected: ' + addr);
         if (s) {
+            s.close();
             self._sessions.remove(s);
             s = null;
         }
+    });
+
+    socket.setTimeout(60 * 1000);
+    socket.on('timeout', function() {
+        console.log("socket timed out, destroying");
+        socket.destroy();
     });
 
     socket.once('data', function (data) {
