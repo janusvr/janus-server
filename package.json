@@ -8,7 +8,7 @@
     "url": "https://github.com/janusvr/janus-server.git"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha test/"
+    "test": "mocha test"
   },
   "author": "Lisa Croxford, Michael/HAZARDU5,  Jerad Bitner, na/source83, oculushut, Tim Schwartz, JamesHagerman",
   "license": "MIT",
