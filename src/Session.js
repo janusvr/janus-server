@@ -24,21 +24,15 @@ function Session(server, socket) {
     this.methods = getMiddleware(this);
     byline(socket).on('data', this.parseMessage.bind(this));
 
-    socket.on('close', function() {
-        // let's remove the userId from the online list
-        delete self._server._userList[self.id];
-        delete self._server._partyList[self.id];
-        self._server.savePartyList();
-        if ( self.currentRoom ) {
-            self.currentRoom.emit('user_disconnected', { userId:self.id });
-        }
-
-        self._rooms.forEach(function(room) {
-            room.removeSession(self);
-        });
-    });
 };
 
+Session.prototype.close = function() {
+    delete this._server._userList[this.id];
+    delete this._server._partyList[this.id];
+    if (this.currentRoom)
+        this.currentRoom.emit('user_disconnected', { userId: this.id });
+    this._rooms.forEach(room => room.removeSession(this))
+}
 
 Session.prototype.makeMessage = function(method, data) {
     return JSON.stringify({method: method, data: data}) + CRLF;
@@ -57,7 +51,7 @@ Session.prototype.send = function(message) {
 
 Session.prototype.clientError = function(message) {
     log.error('Client error ('+this._socket.remoteAddress + ', ' + (this.id || 'Unnamed') + '): ' + message);
-    this.send(this.makeError(message)); 
+    this.send(this.makeError(message));
 };
 
 Session.prototype.clientOkay = function() {
@@ -66,13 +60,13 @@ Session.prototype.clientOkay = function() {
 }
 
 Session.validMethods = [
-    'logon', 
-    'subscribe', 
-    'unsubscribe', 
-    'enter_room', 
-    'move', 
-    'chat', 
-    'portal', 
+    'logon',
+    'subscribe',
+    'unsubscribe',
+    'enter_room',
+    'move',
+    'chat',
+    'portal',
     'users_online',
     'get_partylist',
 ];
@@ -85,19 +79,19 @@ Session.prototype.parseMessage = function(data) {
 
     try {
         payload = JSON.parse(data);
-    } 
+    }
     catch(e) {
         log.info("data: " + data);
         log.info("payload: " + payload);
-        return this.clientError('Unable to parse last message');    
+        return this.clientError('Unable to parse last message');
     }
 
-    if(Session.validMethods.indexOf(payload.method) === -1) 
+    if(Session.validMethods.indexOf(payload.method) === -1)
         return this.clientError('Invalid method: ' + payload.method);
-       
-    if(payload.method !== 'logon' && !this._authed ) 
+
+    if(payload.method !== 'logon' && !this._authed )
         return this.clientError('You must call "logon" before sending any other commands.');
-       
+
     if(payload.data === undefined) payload.data = {};
     if(typeof(payload.data)!= "object") payload.data = { "data": payload.data };
     payload.data._userId = this.id;

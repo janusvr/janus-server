@@ -18,7 +18,7 @@ global.log = {
     debug: console.log,
     warn: console.log,
     error: console.error,
-    http: console.log 
+    http: console.log
 };
 
 var Session = require('./Session');
@@ -32,7 +32,7 @@ function Server() {
     this._rooms = {};
     this.workerId = process.pid.toString();
     console.log(this.workerId, 'started');
-    if (global.config.multiprocess.enabled) { 
+    if (global.config.multiprocess.enabled) {
         this.redisClient = redis.createClient(config.redis);
         this.redis = {
             pub: redis.createClient(config.redis),
@@ -56,7 +56,7 @@ function Server() {
         }.bind(this)
     };
 
-    this._userList = new Proxy({}, this.userListHandler); 
+    this._userList = new Proxy({}, this.userListHandler);
     this._partyList = {};
     this._plugins = new Plugins(this);
     this.savePartyList();
@@ -89,7 +89,6 @@ function isNameFreeMulti(name, cb) {
         var keys = Object.keys(obj);
         for (var i = 0; i < keys.length; i++) {
             var list = JSON.parse(obj[keys[i]]);
-            
             if (list.hasOwnProperty(name)) {
                 free = false;
                 break;
@@ -105,7 +104,7 @@ function isNameFreeSingle(name, cb) {
         if (s.id === name)
             free = false;
     });
-    return cb(null, free); 
+    return cb(null, free);
 }
 
 // ## Start Socket Server ##
@@ -140,7 +139,7 @@ Server.prototype.start = function (callback) {
         });
     }
 
-    if (callback && typeof(callback) == "function") 
+    if (callback && typeof(callback) == "function")
         callback();
 };
 
@@ -164,27 +163,26 @@ Server.prototype.onConnect = function (socket) {
 
     // setup for websocket
     var driver = websocket.server({'protocols': 'binary'});
-    
+
     socket.on('error', function (err) {
         log.error(addr);
         log.error('Socket error: ', err);
     });
-   
+
     socket.on('close', function () {
-        log.info('Client disconnected: ' + addr);
+        log.info('Client disconnected:', addr);
         if (s) {
+            s.close();
             self._sessions.remove(s);
             s = null;
         }
     });
-    /* disable until timeout is set
-    socket.on('timeout', function() {
-        log.info('Client timed out: ' + addr);
-        if (s)
-            self._sessions.remove(s);
+    socket.setTimeout(60 * 1000);
+    socket.on('timeout', () => {
+        log.info('Client timed out:', addr);
         socket.destroy();
     });
-    */
+
     socket.once('data', function (data) {
         // try to parse the packet as http
         var request = parser.parseRequest(data.toString());
