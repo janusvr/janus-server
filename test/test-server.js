@@ -39,44 +39,48 @@ describe('server', () => {
             client.connect("ws://localhost:"+global.config.port);
             client.on('connectFailed', (err) => {
                 throw new Error(err);
-            });  
+            });
             client.on('connect', (conn) => {
                 conn.close();
                 done();
             });
         });
     })
-    describe("tcp connections", runClientTests.bind(this, "tcp")); 
+    describe("tcp connections", runClientTests.bind(this, "tcp"));
     describe("websocket connections", runClientTests.bind(this, "websocket"));
 });
 
 function runClientTests (transport, done) {
-    var client, 
+    var client,
         clientOptions = {
             transport: transport,
-            host: 'localhost', 
-            port: global.config.port, 
-            room: 'http://testroom', 
+            host: 'localhost',
+            port: global.config.port,
+            room: 'http://testroom',
             userId: 'tester'
         };
-    before( (done) => { 
+    before( (done) => {
         client = new JanusClient(clientOptions);
         done();
     });
 
     after( (done) => {
         if (!client.destroyed) {
-            client.on('end', done); 
+            client.on('end', done);
             client.disconnect();
         }
         else {
             done();
         }
     });
-    it('logon should return {method: "okay"}', (done) =>  { checkLogon(client, done) });
-    it('subscribe should return {method: "okay"}', (done) => { checkSubscribe(client, done) });
-    it('enter_room should work', (done) => { checkEnterRoom(client, done)});
-    it('unsubscribe should return {method: "okay"}', (done) => { checkUnsubscribe(client, done) });
+    it('should handle logon', (done) =>  { checkLogon(client, done) });
+    it('should handle subscribe', (done) => { checkSubscribe(client, done) });
+    it('should handle enter_room', (done) => { checkEnterRoom(client, done)});
+    it('should handle unsubscribe', (done) => { checkUnsubscribe(client, done) });
+    if (config.multiprocess.enabled) {
+        it('')
+    }
+
 
 }
 
