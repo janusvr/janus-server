@@ -6,7 +6,6 @@ const okayMessage = JSON.stringify({"method": "okay"}) + CRLF;
 var getMiddleware = require('./MethodMiddleware');
 
 function Session(server, socket) {
-
     var self = this;
 
     this._socket = socket;

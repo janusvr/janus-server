@@ -55,13 +55,13 @@ function Server() {
             this.saveUserList();
         }.bind(this)
     };
-
     this._userList = new Proxy({}, this.userListHandler);
+
     this._partyList = {};
     this._plugins = new Plugins(this);
     this.savePartyList();
-
-    this.isNameFree = global.config.multiprocess.enabled ? isNameFreeMulti.bind(this) : isNameFreeSingle.bind(this);
+    //
+    this.isNameFree = config.multiprocess.enabled ? isNameFreeMulti.bind(this) : isNameFreeSingle.bind(this);
 }
 
 Server.prototype.getRoom = function (roomId) {
@@ -74,12 +74,19 @@ Server.prototype.getRoom = function (roomId) {
 
 Server.prototype.saveUserList = function () {
     if (global.config.multiprocess.enabled)
-        this.redisClient.hmset("multi:userlist", this.workerId, JSON.stringify(this._userList));
+        /*
+         'multi:userlist':
+            '<workerId>': '{userlist, updated_at }' // json
+
+        */
+        this.redisClient.hmset("multi:userlist", this.workerId,
+            JSON.stringify({userlist: this._userList, time_updated: Date.now().toString()}));
 };
 
 Server.prototype.savePartyList = function() {
     if (global.config.multiprocess.enabled)
-        this.redisClient.hmset("multi:partylist", this.workerId,  JSON.stringify(this._partyList));
+        this.redisClient.hmset("multi:partylist", this.workerId,
+            JSON.stringify({partylist: this._partyList,  time_updated: Date.now().toString()}));
 };
 
 function isNameFreeMulti(name, cb) {
@@ -87,6 +94,7 @@ function isNameFreeMulti(name, cb) {
     this.redisClient.hgetall('multi:userlist', (err, obj) => {
         if (!obj) return cb(null, free);
         var keys = Object.keys(obj);
+
         for (var i = 0; i < keys.length; i++) {
             var list = JSON.parse(obj[keys[i]]);
             if (list.hasOwnProperty(name)) {

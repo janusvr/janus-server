@@ -5,6 +5,7 @@ var request = require('superagent'),
     net = require('net'),
     WebSocketClient = require('websocket').client,
     Server = require('../src/Server.js'),
+    redis = require('redis'),
     JanusClient = require('janus-node-client');
 
 global.config = require("../config.js");
@@ -75,13 +76,28 @@ function runClientTests (transport, done) {
     });
     it('should handle logon', (done) =>  { checkLogon(client, done) });
     it('should handle subscribe', (done) => { checkSubscribe(client, done) });
-    it('should handle enter_room', (done) => { checkEnterRoom(client, done)});
+    it('should handle enter_room', (done) => { checkEnterRoom(client, done) });
     it('should handle unsubscribe', (done) => { checkUnsubscribe(client, done) });
     if (config.multiprocess.enabled) {
-        it('')
+        var redis_client = redis.createClient(config.redis);
+        it('should save the partylist to redis', (done) => { checkRedisUserList(client, done, redis_client) })
     }
 
 
+}
+
+function checkRedisUserList (client, done, redis_client) {
+    client.on('connected', () => {
+        client.once('data', (data) => {
+            redis_client.hgetall('multi:userlist', (err, obj) => {
+                if (err) throw new Error();
+                console.log('here the userlist be', obj);
+                done();
+            });
+        });
+        client.sendLogon();
+    });
+    client.connect();
 }
 
 function checkLogon (client, done) {
