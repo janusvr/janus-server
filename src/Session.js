@@ -171,7 +171,7 @@ Session.prototype.enter_room = function(data) {
             this._server._partyList[this.id] = {};
        
         }
-        if ((data.roomUrl !== undefined) && (data.roomUrl.match('^https?://'))){   
+        if ((data.roomUrl !== undefined) && (data.roomUrl.match('^https?://') || data.roomUrl == '')){   
             this._server._partyList[this.id].roomId = data.roomId;    
             this._server._partyList[this.id].roomUrl = data.roomUrl;    
             this._server._partyList[this.id].roomName = (data.roomName === undefined) ? "" : data.roomName;   
