@@ -78,10 +78,12 @@ class Server
             set: function(obj, prop, val) {
                 obj[prop] = val;
                 this.saveUserList();
+				return true;
             }.bind(this),
             deleteProperty: function(obj, prop) {
-                delete obj[prop];
+				delete obj[prop];
                 this.saveUserList();
+				return true;
             }.bind(this)
         };
     
