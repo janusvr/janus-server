@@ -34,7 +34,7 @@
     "chai": "^3.5.0",
     "janus-node-client": "0.0.1",
     "mocha": "^3.0.2",
-    "superagent": "^2.2.0",
+    "superagent": "^6.1.0",
     "websocket": "*"
   }
 }
