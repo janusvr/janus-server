@@ -2,8 +2,8 @@ function validateLogon(data, next) {
     if(typeof data.userId !== "string" || data.userId === '') 
         return this.clientError('Missing userId in data packet');        
 
-    if (!data.userId.match('^[a-zA-Z0-9_]+$')) 
-        return this.clientError('illegal character in user name, only use alphanumeric and underscore');;
+    if (!data.userId.match('^[a-zA-Z0-9_ ]+$')) 
+        return this.clientError('illegal character in user name, only use alphanumeric, space, and underscore');
 
     if(data.roomId === undefined) 
         return this.clientError('Missing roomId in data packet');;
