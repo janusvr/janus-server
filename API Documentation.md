@@ -48,12 +48,6 @@ This is an example of a message to logon with if the userId "LL" has not been re
 {"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457"}}
 ```
 
-Client -> Server Message Example
-
-```json
-{"method":"logon","data":{"userId":"LL", "version":"23.4","roomId":"345678354764987457"}}
-```
-
 Real example from JanusVR 40.3
 
 ```json
