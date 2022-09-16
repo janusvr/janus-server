@@ -1,17 +1,17 @@
 /* global log */
 var cluster = require('cluster');
 var redis = require('redis');
-global.config = require('./config.js');
+const config = require('./config.js');
 
-if (cluster.isMaster && global.config.multiprocess.enabled) {
-    var numCPUs  = global.config.multiproccess.processes;
+if (cluster.isMaster && config.multiprocess.enabled) {
+    var numCPUs = config.multiproccess.processes;
     console.log(`Starting ${numCPUs} workers`);
     console.log('========================');
     console.log('Janus VR Presence Server (clustered)');
     console.log('========================');
     console.log('See config.js for configuration');
     console.log('Startup date/time: ' + Date());
-    var redisClient = redis.createClient(global.config.redis);
+    var redisClient = redis.createClient(config.redis);
     redisClient.del('userlist:multi');
     redisClient.del('partylist:multi');
     for (var i = 0; i < numCPUs; i++) {
@@ -29,5 +29,5 @@ if (cluster.isMaster && global.config.multiprocess.enabled) {
 
 else {
     var Server = require("./src/Server.js");
-    (new Server()).start();
+    (new Server(config)).start();
 }
