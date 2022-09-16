@@ -1,6 +1,5 @@
 var args = require('optimist').argv;
 var byline = require('byline');
-var config = require(args.config || '../config.js');
 var CRLF = "\r\n";
 const okayMessage = JSON.stringify({"method": "okay"}) + CRLF;
 var getMiddleware = require('./MethodMiddleware');

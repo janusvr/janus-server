@@ -26,13 +26,14 @@ var Room = require('./Room');
 var Plugins = require('./Plugins');
 var redis = require('redis');
 
-function Server() {
+function Server(config={multiprocess: { enabled: false }}) {
     var d = new Date();
     this._sessions = new sets.Set();
     this._rooms = {};
+    this.config = config;
     this.workerId = process.pid.toString();
     console.log(this.workerId, 'started');
-    if (global.config.multiprocess.enabled) { 
+    if (config.redis && config.multiprocess && config.multiprocess.enabled) {
         this.redisClient = redis.createClient(config.redis);
         this.redis = {
             pub: redis.createClient(config.redis),
@@ -61,7 +62,7 @@ function Server() {
     this._plugins = new Plugins(this);
     this.savePartyList();
 
-    this.isNameFree = global.config.multiprocess.enabled ? isNameFreeMulti.bind(this) : isNameFreeSingle.bind(this);
+    this.isNameFree = config.multiprocess.enabled ? isNameFreeMulti.bind(this) : isNameFreeSingle.bind(this);
 }
 
 Server.prototype.getRoom = function (roomId) {
@@ -73,12 +74,12 @@ Server.prototype.getRoom = function (roomId) {
 };
 
 Server.prototype.saveUserList = function () {
-    if (global.config.multiprocess.enabled)
+    if (this.config.multiprocess.enabled)
         this.redisClient.hmset("multi:userlist", this.workerId, JSON.stringify(this._userList));
 };
 
 Server.prototype.savePartyList = function() {
-    if (global.config.multiprocess.enabled)
+    if (this.config.multiprocess.enabled)
         this.redisClient.hmset("multi:partylist", this.workerId,  JSON.stringify(this._partyList));
 };
 
@@ -111,8 +112,9 @@ function isNameFreeSingle(name, cb) {
 // ## Start Socket Server ##
 Server.prototype.start = function (callback) {
 
+    const config = this.config;
     this.server = net.createServer(this.onConnect.bind(this));
-    this.server.listen(config.port, "::", function (err) {
+    this.server.listen(this.config.port, "::", function (err) {
 
         if (err) {
             log.error('Socket Server error listening on port: ' + config.port);

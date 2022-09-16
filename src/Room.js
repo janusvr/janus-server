@@ -5,7 +5,7 @@ function Room(id, server) {
     this.server = server; 
     this.id = id;
     this._sessions = new sets.Set();
-    if (global.config.multiprocess.enabled) {
+    if (server.config.multiprocess.enabled) {
         this.sub = server.redis.sub;
         this.pub = server.redis.pub;
         // subscribe from here, then have a global handler that hands off to room
@@ -36,7 +36,7 @@ Room.prototype.emitFromChannel = function(message) {
 
 Room.prototype.emit = function(event, data, relay) {
     relay = relay || true;
-    if (!global.config.multiprocess.enabled) relay = false;
+    if (!server.config.multiprocess.enabled) relay = false;
     var packet = JSON.stringify({method:event, data: data}) + "\r\n";
     // relay is a boolean switch to control whether the data
     // should be relayed to the redis channel for this room

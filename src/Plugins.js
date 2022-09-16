@@ -1,5 +1,4 @@
 var args = require('optimist').argv;
-var config = require(args.config || '../config.js');
 var Session = require('./Session');
 
 function Plugins(server) {
@@ -13,7 +12,7 @@ function Plugins(server) {
 }
 
 Plugins.prototype.intervalLoad = function() {
-    var plugins = config.intervalPlugins;
+    var plugins = this._server.config.intervalPlugins;
 
     for(var p in plugins) {
         var file = plugins[p].plugin;
@@ -25,7 +24,7 @@ Plugins.prototype.intervalLoad = function() {
 }
 
 Plugins.prototype.methodLoad = function() {
-    var plugins = config.methodPlugins;
+    var plugins = this._server.config.methodPlugins;
 
     for(var method in plugins) {
         var file = plugins[method].plugin;
@@ -36,7 +35,7 @@ Plugins.prototype.methodLoad = function() {
 }
 
 Plugins.prototype.call = function(name, socket, command) {
-  var hook = config.hookPlugins[name];
+  var hook = this._server.config.hookPlugins[name];
 
   for(var k in hook.plugins) {
     var p = hook.plugins[k];
