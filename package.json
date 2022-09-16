@@ -1,5 +1,5 @@
 {
-  "name": "janus_server",
+  "name": "janus-presence-server",
   "version": "0.1.1",
   "description": "JanusVR presence and chat server",
   "main": "server.js",
@@ -17,7 +17,7 @@
     "byline": "^4.1.1",
     "express": "^4.6.1",
     "finished": "^1.2.2",
-    "http-string-parser": "0.0.5",
+    "http-string-parser": "^0.0.6",
     "janus-method-ping": "^0.0.3",
     "janus-mysql-auth": "^0.0.2",
     "janus-mysql-userlist-official": ">=0.0.11",
@@ -28,7 +28,7 @@
     "redis": ">=3.1.1",
     "simplesets": "^1.2.0",
     "split-ca": "^1.0.0",
-    "websocket-driver": "^0.6.4"
+    "websocket-driver": "^0.7.4"
   },
   "devDependencies": {
     "chai": "^3.5.0",
