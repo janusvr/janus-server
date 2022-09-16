@@ -20,11 +20,11 @@
     "http-string-parser": "^0.0.6",
     "janus-method-ping": "^0.0.3",
     "janus-mysql-auth": "^0.0.2",
-    "janus-mysql-userlist-official": ">=0.0.11",
     "janus-mysql-popular": "*",
+    "janus-mysql-userlist-official": ">=0.0.11",
     "mysql": "^2.12.0",
     "npmlog": "^0.1.1",
-    "optimist": "^0.6.1",
+    "optimist": "^0.5.2",
     "redis": ">=3.1.1",
     "simplesets": "^1.2.0",
     "split-ca": "^1.0.0",
@@ -33,7 +33,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "janus-node-client": "0.0.1",
-    "mocha": "^3.0.2",
+    "mocha": "^10.0.0",
     "superagent": "^6.1.0",
     "websocket": "*"
   }
