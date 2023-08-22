@@ -36,7 +36,7 @@ Room.prototype.emitFromChannel = function(message) {
 
 Room.prototype.emit = function(event, data, relay) {
     relay = relay || true;
-    if (!server.config.multiprocess.enabled) relay = false;
+    if (!this.server.config.multiprocess.enabled) relay = false;
     var packet = JSON.stringify({method:event, data: data}) + "\r\n";
     // relay is a boolean switch to control whether the data
     // should be relayed to the redis channel for this room
